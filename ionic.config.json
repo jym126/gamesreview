@@ -1,0 +1,7 @@
+{
+  "name": "GameRieview",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
