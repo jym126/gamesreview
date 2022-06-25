@@ -1,17 +1,33 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Tab 2
+      Buscar juegos
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+  <ion-searchbar
+  [animated]="true"
+  placeholder = {{value}}
+  (ionChange)="findGame($event)" 
+  [debounce]="550" 
+  (click)="onClick()"
+  color="primary">
+</ion-searchbar>
+
+<ion-label class="ion-padding" color="secondary">Sugerencias:</ion-label>
+
+<ion-card *ngFor="let game of games.results" (click)="verDetalle(game.id)">
+  <ion-card-header>
+    <ion-card-title>{{game.name}}</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <ion-img [src]="game.background_image"></ion-img>
+    
+  </ion-card-content>
+</ion-card>
+
+
 </ion-content>

@@ -1,0 +1,64 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-icon slot="start" 
+              name="return-up-back-outline" 
+              size="large" 
+              color="primary" 
+              class="ion-padding"
+              (click)="volver()"
+              ></ion-icon>
+    <ion-title slots="end">Detalle</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-card>
+
+    <ion-card-header>
+      <ion-card-title>{{detalle.name}}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-img [src]="detalle.background_image_additional"></ion-img>
+      <ion-item>
+        <ion-label>Lanzado:</ion-label>
+        <ion-icon slot="start" name="rocket-outline" color="primary"></ion-icon>
+        {{detalle.released}}
+      </ion-item>
+      <ion-item>
+        <ion-label>Puntuación:</ion-label>
+        <ion-icon slot="start" name="thumbs-up-outline" color="primary"></ion-icon>
+        {{detalle.rating}} / 5
+      </ion-item>
+
+      <ion-item>
+        {{detalle.description}}
+      </ion-item>
+      <ion-item-divider>
+        <ion-label>Genero</ion-label>
+      </ion-item-divider>
+      <ion-item *ngFor="let gen of detalle.genres">
+        {{gen.name}}
+      </ion-item>
+      <ion-item-divider>
+        <ion-label>Plataformas</ion-label>
+      </ion-item-divider>
+      <ion-item *ngFor="let item of detalle.platforms">
+        {{item.platform.name}}
+      </ion-item>
+      <ion-item-divider>
+        <ion-label>Desarrollado por:</ion-label>
+      </ion-item-divider>
+      <ion-item *ngFor="let dev of detalle.publishers">
+        {{dev.name}}
+      </ion-item>
+      <ion-item>
+        <ion-label>Visita Web Oficial:</ion-label>
+          <span (click)="openArticle(detalle.website)"><a>Website</a></span>
+      </ion-item>
+      <ion-item>
+        <ion-label>Comprar:</ion-label>
+        <span (click)="openArticle('https://'+detalle.stores[0].store.domain)"><a>Tienda Oficial</a></span>
+      </ion-item>
+
+    </ion-card-content>
+  </ion-card>
+</ion-content>

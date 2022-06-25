@@ -1,4 +1,8 @@
 import { Component } from '@angular/core';
+import { ModalController } from '@ionic/angular';
+import { DetalleComponent } from '../components/detalle/detalle.component';
+import { GameService } from '../gameServices.service';
+import { Game } from '../interfaces/interfaces';
 
 @Component({
   selector: 'app-tab2',
@@ -7,6 +11,32 @@ import { Component } from '@angular/core';
 })
 export class Tab2Page {
 
-  constructor() {}
+  games: Game = {};
+  value = 'Nombre del juego';
+  textoBuscar = '';
+
+  constructor(private gameServ: GameService,
+              private mc: ModalController) {}
+
+  findGame(event) {
+    const pelicula = event.detail.value;
+    this.gameServ.findGame(pelicula)
+    .subscribe(resp => this.games = resp);
+  }
+
+  onClick() {
+    this.value = '';
+  }
+
+  async verDetalle(id: number) {
+    this.gameServ.id = id;
+    const modal = await this.mc.create({
+      component: DetalleComponent,
+      componentProps: {
+        id
+      }
+    });
+    modal.present();
+  }
 
 }
