@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/member-ordering */
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { GameService } from '../gameServices.service';
 import SwiperCore, { SwiperOptions } from 'swiper';
 import { Detalle, Game } from '../interfaces/interfaces';
 import { DetalleComponent } from '../components/detalle/detalle.component';
 import { ActionSheetController, ModalController } from '@ionic/angular';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';//para compartir en redes sociales
+import { DataLocalService } from '../data-local.service';
 
 
 
@@ -16,6 +17,9 @@ import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';//pa
   styleUrls: ['tab1.page.scss']
 })
 export class Tab1Page implements OnInit {
+
+  @Input() id;
+  marcado = 'star-outline';
 
   games: Game = {};
   description: Detalle = {};
@@ -40,18 +44,20 @@ export class Tab1Page implements OnInit {
   constructor(private gameServ: GameService,
               private mc: ModalController,
               private ss: SocialSharing,
-              private asc: ActionSheetController) {}
+              private asc: ActionSheetController,
+              private dataLocal: DataLocalService) {}
 
   ngOnInit() {
     this.getGames();
   }
 
-
+  //Para obtener un unico juego por su id
   getGames() {
     this.gameServ.getGames()
     .subscribe(resp => {this.games = resp; });
   }
 
+  //Modal que nos lleva al componente paraver los detalles del juego
   async verDetalle(id: number) {
     this.gameServ.id = id;
     const modal = await this.mc.create({
@@ -63,6 +69,7 @@ export class Tab1Page implements OnInit {
     modal.present();
   }
 
+  //Muestra la sinopsis del juego
   sinopsis(id) {
     if(this.leer === 'Leer mas...') {
     this.oculto = 5000;
@@ -75,7 +82,9 @@ export class Tab1Page implements OnInit {
     }
   }
 
+  //Abre el actionsheet para poder compartir
   async onOpenMenu(id) {
+    const gameInFavorites = this.dataLocal.gameInFavorites(id);
 
     const actionSheet = await this.asc.create({
       header: 'Opciones',
@@ -88,24 +97,23 @@ export class Tab1Page implements OnInit {
 
         {
           text: 'Favoritos',
-          icon: 'heart-outline',
+          icon: gameInFavorites ? 'heart' : 'heart-outline', //Cambia el icono del corazón para saber si ya está o no en favoritos
           cssClass: '',
-          handler: ()=> this.onToggleFavorite()
+          handler: ()=> this.onToggleFavorite(id)
         },
 
         {
           text: 'Cancelar',
-          icon: 'close-outline',
+          icon: this.marcado,
           role: 'cancel',
           cssClass: 'cancel'
         }
       ]
-
     });
-
     await actionSheet.present();
   }
 
+  //Método para compartir con otras aplicaciones
   onShareGame(id) {
     this.gameServ.getGame(id)
     .subscribe(resp => this.description = resp);
@@ -118,7 +126,9 @@ export class Tab1Page implements OnInit {
     );
   }
 
-  onToggleFavorite() {
-    console.log('favorite');
-}
+  //Método para añadir o quitar de favoritos
+  onToggleFavorite(id) {
+    this.gameServ.getGame(id)
+    .subscribe(resp => this.dataLocal.guardarBorrarJuego(resp));
+  }
 }

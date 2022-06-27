@@ -28,8 +28,8 @@ export class DetalleComponent implements OnInit {
     this.mc.dismiss();
   }
 
-  //Para abrir el artículo en la web o el webkit
-  openArticle(web) {
+  //Para abrir pagina del juego en la web o el webkit
+  openWebBrowser(web) {
     if(this.platform.is('ios') || this.platform.is('android')){
     const browser = this.iab.create(web);
     browser.show();

@@ -52,11 +52,11 @@
       </ion-item>
       <ion-item>
         <ion-label>Visita Web Oficial:</ion-label>
-          <span (click)="openArticle(detalle.website)"><a>Website</a></span>
+          <span (click)="openWebBrowser(detalle.website)"><a>Website</a></span>
       </ion-item>
       <ion-item>
         <ion-label>Comprar:</ion-label>
-        <span (click)="openArticle('https://'+detalle.stores[0].store.domain)"><a>Tienda Oficial</a></span>
+        <span (click)="openWebBrowser('https://'+detalle.stores[0].store.domain)"><a>Tienda Oficial</a></span>
       </ion-item>
 
     </ion-card-content>

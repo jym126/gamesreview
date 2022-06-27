@@ -11,10 +11,16 @@ import { HttpClientModule } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { SwiperModule } from 'swiper/angular';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
+import { IonicStorageModule } from '@ionic/storage-angular';
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, HttpClientModule, SwiperModule],
+  imports: [BrowserModule,
+            IonicModule.forRoot(),
+            AppRoutingModule,
+            HttpClientModule,
+            SwiperModule,
+          IonicStorageModule.forRoot()],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, DatePipe, SocialSharing, InAppBrowser],
   bootstrap: [AppComponent],
 })
