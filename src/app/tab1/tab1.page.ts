@@ -20,7 +20,6 @@ export class Tab1Page implements OnInit {
 
   @Input() id;
   marcado = 'star-outline';
-
   games: Game = {};
   description: Detalle = {};
   oculto = 150;

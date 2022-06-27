@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
-import { ModalController, Platform } from '@ionic/angular';
+import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
+import { ActionSheetController, ModalController, Platform } from '@ionic/angular';
+import { DataLocalService } from 'src/app/data-local.service';
 import { GameService } from 'src/app/gameServices.service';
 import { Detalle } from 'src/app/interfaces/interfaces';
 
@@ -13,11 +15,16 @@ export class DetalleComponent implements OnInit {
 
   detalle: Detalle = {};
   id = this.gameServ.id;
+  description: Detalle = {};
+  marcado = 'star-outline';
 
   constructor(private gameServ: GameService,
               private platform: Platform,
               private mc: ModalController,
-              private iab: InAppBrowser) { }
+              private iab: InAppBrowser,
+              private dataLocal: DataLocalService,
+              private asc: ActionSheetController,
+              private ss: SocialSharing) { }
 
   ngOnInit() {
     this.gameServ.getGame(this.id)
@@ -40,6 +47,56 @@ export class DetalleComponent implements OnInit {
 
   imprimir(tienda) {
     console.log(tienda);
+  }
+
+  //Abre el actionsheet para poder compartir
+  async onOpenMenu(id) {
+    const gameInFavorites = this.dataLocal.gameInFavorites(id);
+
+    const actionSheet = await this.asc.create({
+      header: 'Opciones',
+      buttons: [
+        {
+        text: 'Compartir',
+        icon: 'Share-outline',
+        handler: ()=> this.onShareGame(id)
+        },
+
+        {
+          text: 'Favoritos',
+          icon: gameInFavorites ? 'heart' : 'heart-outline', //Cambia el icono del corazón para saber si ya está o no en favoritos
+          cssClass: '',
+          handler: ()=> this.onToggleFavorite(id)
+        },
+
+        {
+          text: 'Cancelar',
+          icon: this.marcado,
+          role: 'cancel',
+          cssClass: 'cancel'
+        }
+      ]
+    });
+    await actionSheet.present();
+  }
+
+  //Método para compartir con otras aplicaciones
+  onShareGame(id) {
+    this.gameServ.getGame(id)
+    .subscribe(resp => this.description = resp);
+    const {name, website, rating}: any = this.description;
+    this.ss.share(
+      website,
+      name,
+      null,
+      'Rating: '+ rating.toString()
+    );
+  }
+
+  //Método para añadir o quitar de favoritos
+  onToggleFavorite(id) {
+    this.gameServ.getGame(id)
+    .subscribe(resp => this.dataLocal.guardarBorrarJuego(resp));
   }
 
 }
