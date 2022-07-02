@@ -15,8 +15,7 @@ export class DetalleComponent implements OnInit {
 
   detalle: Detalle = {};
   id = this.gameServ.id;
-  description: Detalle = {};
-  marcado = 'star-outline';
+  marcado = 'close-circle-outline';
 
   constructor(private gameServ: GameService,
               private platform: Platform,
@@ -83,8 +82,8 @@ export class DetalleComponent implements OnInit {
   //Método para compartir con otras aplicaciones
   onShareGame(id) {
     this.gameServ.getGame(id)
-    .subscribe(resp => this.description = resp);
-    const {name, website, rating}: any = this.description;
+    .subscribe(resp => this.detalle = resp);
+    const {name, website, rating}: any = this.detalle;
     this.ss.share(
       website,
       name,

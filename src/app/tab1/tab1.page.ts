@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/member-ordering */
 import { Component, Input, OnInit } from '@angular/core';
@@ -8,6 +9,7 @@ import { DetalleComponent } from '../components/detalle/detalle.component';
 import { ActionSheetController, ModalController } from '@ionic/angular';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';//para compartir en redes sociales
 import { DataLocalService } from '../data-local.service';
+import { ThemeService } from '../theme.service';
 
 
 
@@ -19,7 +21,7 @@ import { DataLocalService } from '../data-local.service';
 export class Tab1Page implements OnInit {
 
   @Input() id;
-  marcado = 'star-outline';
+  marcado = 'close-circle-outline';
   games: Game = {};
   description: Detalle = {};
   oculto = 150;
@@ -44,7 +46,8 @@ export class Tab1Page implements OnInit {
               private mc: ModalController,
               private ss: SocialSharing,
               private asc: ActionSheetController,
-              private dataLocal: DataLocalService) {}
+              private dataLocal: DataLocalService,
+              private ts: ThemeService) {}
 
   ngOnInit() {
     this.getGames();
@@ -129,5 +132,9 @@ export class Tab1Page implements OnInit {
   onToggleFavorite(id) {
     this.gameServ.getGame(id)
     .subscribe(resp => this.dataLocal.guardarBorrarJuego(resp));
+  }
+
+  changeTheme(event) {
+    event.detail.checked ? this.ts.enableDark() : this.ts.enableLight();
   }
 }

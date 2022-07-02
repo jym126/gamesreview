@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { LoadingController, ModalController } from '@ionic/angular';
 import { DetalleComponent } from '../components/detalle/detalle.component';
 import { GameService } from '../gameServices.service';
 import { Game } from '../interfaces/interfaces';
@@ -14,14 +14,18 @@ export class Tab2Page {
   games: Game = {};
   value = 'Nombre del juego';
   textoBuscar = '';
+  spinner = false;
 
   constructor(private gameServ: GameService,
-              private mc: ModalController) {}
+              private mc: ModalController,
+              private loadingController: LoadingController) {}
 
   findGame(event) {
+    this.spinner = true;
     const pelicula = event.detail.value;
     this.gameServ.findGame(pelicula)
     .subscribe(resp => this.games = resp);
+    this.finding();
   }
 
   onClick() {
@@ -37,6 +41,12 @@ export class Tab2Page {
       }
     });
     modal.present();
+  }
+
+  finding() {
+    setTimeout(() => {
+      this.spinner = false;
+    }, 2000);
   }
 
 }

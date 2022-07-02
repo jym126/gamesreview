@@ -17,7 +17,12 @@
   color="primary">
 </ion-searchbar>
 
-<ion-label class="ion-padding" color="secondary">Sugerencias:</ion-label>
+<ion-row>
+  <ion-label class="ion-padding" color="secondary">Sugerencias:</ion-label>
+</ion-row>
+<ion-row>
+  <!-- <ion-spinner *ngIf="spinner" name="bubbles" duration="1000"></ion-spinner> -->
+</ion-row>
 
 <ion-card *ngFor="let game of games.results" (click)="verDetalle(game.id)">
   <ion-card-header>
@@ -29,5 +34,10 @@
   </ion-card-content>
 </ion-card>
 
+<ion-row>
+  <ion-col size="12" style="text-align:right" expand="block">
+    <a class="credit" href="https://rawg.io/">Data provided by: RAWG</a>
+  </ion-col>
+</ion-row>
 
 </ion-content>

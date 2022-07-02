@@ -39,7 +39,7 @@
       </ion-item>
 
       <ion-item>
-        {{detalle.description}}
+        {{detalle.description_raw}}
       </ion-item>
       <ion-item-divider>
         <ion-label>Genero</ion-label>
@@ -59,6 +59,28 @@
       <ion-item *ngFor="let dev of detalle.publishers">
         {{dev.name}}
       </ion-item>
+      
+    <ion-item-divider>
+      <ion-label>Modos de juego:</ion-label>
+    </ion-item-divider>
+    <ion-item *ngFor="let modo of detalle.tags">
+      {{modo.name}}
+    </ion-item>
+      <ion-item-divider>
+        <ion-label>Idioma:</ion-label>
+      </ion-item-divider>
+      <ion-label *ngFor="let lan of detalle.tags">
+      <ion-item *ngIf="lan.language !== 'eng'">
+        {{lan.language}}
+      </ion-item>
+    </ion-label>
+      <ion-item>
+        Eng, Spa
+      </ion-item>
+        <ion-item>
+          <ion-label>Votar:</ion-label>
+          <span (click)="openWebBrowser('https://rawg.io/games')"><a>RAWG</a></span>
+        </ion-item>          
       <ion-item>
         <ion-label>Visita Web Oficial:</ion-label>
           <span (click)="openWebBrowser(detalle.website)"><a>Website</a></span>
@@ -67,7 +89,6 @@
         <ion-label>Comprar:</ion-label>
         <span (click)="openWebBrowser('https://'+detalle.stores[0].store.domain)"><a>Tienda Oficial</a></span>
       </ion-item>
-
     </ion-card-content>
   </ion-card>
 </ion-content>

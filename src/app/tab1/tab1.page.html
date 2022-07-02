@@ -3,6 +3,14 @@
     <ion-title>
       Novedades
     </ion-title>
+    <ion-title slot="end">
+      Tema
+    </ion-title>
+    <ion-toggle 
+        color="light" 
+        slot="end"
+        (ionChange)="changeTheme($event)"
+        ></ion-toggle>
   </ion-toolbar>
 </ion-header>
 
@@ -44,12 +52,16 @@
         </ion-item>
         <ion-item>
           <ion-label>Puntuación:</ion-label>
-          <ion-icon slot="start" name="thumbs-up-outline" color="primary"></ion-icon>
+          <ion-icon slot="start" name="thumbs-up-outline" color="primary" expand="block"></ion-icon>
           {{game.rating}} / 5
         </ion-item>
     </ion-card>
   </ng-template>
-
 </swiper>
 
+<ion-row>
+  <ion-col size="12" style="text-align:right" expand="block">
+    <a class="credit" href="https://rawg.io/">Data provided by: RAWG</a>
+  </ion-col>
+</ion-row>
 </ion-content>

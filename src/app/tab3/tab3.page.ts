@@ -16,7 +16,7 @@ import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 export class Tab3Page implements OnInit {
 
   description: Detalle = {};
-  marcado = 'star-outline';
+  marcado = 'close-circle-outline';
 
   get juegosFavoritos(): Detalle[] {
     return this.dataLocal.getLocalGames;
