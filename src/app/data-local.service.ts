@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { Injectable, Input } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { Storage } from '@ionic/storage-angular';
 import { Detalle } from './interfaces/interfaces';

@@ -6,10 +6,11 @@ import { GameService } from '../gameServices.service';
 import SwiperCore, { SwiperOptions } from 'swiper';
 import { Detalle, Game } from '../interfaces/interfaces';
 import { DetalleComponent } from '../components/detalle/detalle.component';
-import { ActionSheetController, ModalController } from '@ionic/angular';
+import { ActionSheetController, ModalController, Platform } from '@ionic/angular';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';//para compartir en redes sociales
 import { DataLocalService } from '../data-local.service';
 import { ThemeService } from '../theme.service';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 
 
 
@@ -47,7 +48,9 @@ export class Tab1Page implements OnInit {
               private ss: SocialSharing,
               private asc: ActionSheetController,
               private dataLocal: DataLocalService,
-              private ts: ThemeService) {}
+              private ts: ThemeService,
+              private platform: Platform,
+              private iab: InAppBrowser) {}
 
   ngOnInit() {
     this.getGames();
@@ -137,4 +140,14 @@ export class Tab1Page implements OnInit {
   changeTheme(event) {
     event.detail.checked ? this.ts.enableDark() : this.ts.enableLight();
   }
+
+    //Para abrir pagina del juego en la web o el webkit
+    openWebBrowser(web) {
+      if(this.platform.is('ios') || this.platform.is('android')){
+      const browser = this.iab.create(web);
+      browser.show();
+      return;
+    }
+    window.open(web, '_blank');
+    }
 }
