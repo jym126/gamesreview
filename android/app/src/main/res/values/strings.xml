@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">GameRieview</string>
-    <string name="title_activity_main">GameRieview</string>
-    <string name="package_name">io.ionic.starter</string>
+    <string name="app_name">GameReview</string>
+    <string name="title_activity_main">GameReview</string>
+    <string name="package_name">com.developmenmartinez</string>
     <string name="custom_url_scheme">io.ionic.starter</string>
 </resources>
