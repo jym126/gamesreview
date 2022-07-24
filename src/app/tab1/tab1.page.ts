@@ -26,6 +26,7 @@ export class Tab1Page implements OnInit {
   games: Game = {};
   description: Detalle = {};
   oculto = 150;
+  carga = false;
   leer = 'Leer mas...';
 
 
@@ -152,5 +153,14 @@ export class Tab1Page implements OnInit {
       return;
     }
     window.open(web, '_blank');
+    }
+
+    doRefresh(event) {
+      this.carga = true;
+      setTimeout(() => {
+        event.target.complete();
+        this.carga = false;
+        window.location.reload();
+      }, 1000);
     }
 }

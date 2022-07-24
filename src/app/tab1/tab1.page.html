@@ -15,15 +15,19 @@
 </ion-header>
 
 <ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content refreshingSpinner="circles"></ion-refresher-content>
+  </ion-refresher>
   <swiper 
   [config]="config" #swiper
   (slideChange)="onSlideChange()">
   <ng-template swiperSlide *ngFor="let game of games.results; let i = index">
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>
-          <ion-row  class="ion-align-items-center">
-            <ion-col size="8" slots="start">
+    <ion-card
+    *ngIf="carga === false">
+    <ion-card-header>
+      <ion-card-title>
+        <ion-row  class="ion-align-items-center">
+          <ion-col size="8" slots="start">
               <ion-label expand="block">{{game.name}}</ion-label>
               
             </ion-col>
