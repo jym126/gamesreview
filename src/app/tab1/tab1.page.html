@@ -17,16 +17,15 @@
 <ion-content>
   <swiper 
   [config]="config" #swiper
-  (slideChange)="onSlideChange()"
->
+  (slideChange)="onSlideChange()">
   <ng-template swiperSlide *ngFor="let game of games.results; let i = index">
     <ion-card>
       <ion-card-header>
         <ion-card-title>
-        <ion-row  class="ion-align-items-center">
-          <ion-col size="8" slots="start">
-            <ion-label expand="block">{{game.name}}</ion-label>
-             
+          <ion-row  class="ion-align-items-center">
+            <ion-col size="8" slots="start">
+              <ion-label expand="block">{{game.name}}</ion-label>
+              
             </ion-col>
             <ion-col slots="end">
               <ion-button (click)="onOpenMenu(game.id)" fill="clear" expand="block">
@@ -36,14 +35,14 @@
           </ion-row>
         </ion-card-title>
       </ion-card-header>
-        <ion-img [src]="game.background_image"  (click)="verDetalle(game.id)"></ion-img>
-
-          <ion-button (click)="sinopsis(game.id)" fill="clear" shape="round">
-            {{leer}}
-          </ion-button>
-          <ion-item *ngIf="oculto !== 0">
-            {{description.description_raw}}
-          </ion-item>
+      <ion-img [src]="game.background_image"  (click)="verDetalle(game.id)"></ion-img>
+      
+      <ion-button (click)="sinopsis(game.id)" fill="clear" shape="round">
+        {{leer}}
+      </ion-button>
+      <ion-item *ngIf="oculto !== 0">
+        {{description.description_raw}}
+      </ion-item>
 
         <ion-item>
           <ion-label>Lanzado:</ion-label>

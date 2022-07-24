@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 import { Component, Input, OnInit } from '@angular/core';
 import { GameService } from '../gameServices.service';
-import SwiperCore, { SwiperOptions } from 'swiper';
+import SwiperCore, { SwiperOptions, Pagination, Navigation } from 'swiper';
 import { Detalle, Game } from '../interfaces/interfaces';
 import { DetalleComponent } from '../components/detalle/detalle.component';
 import { ActionSheetController, ModalController, Platform } from '@ionic/angular';
@@ -13,7 +13,7 @@ import { ThemeService } from '../theme.service';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 
 
-
+SwiperCore.use([Pagination, Navigation]);
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
@@ -32,8 +32,11 @@ export class Tab1Page implements OnInit {
   config: SwiperOptions = {
     slidesPerView: 1,
     spaceBetween: 1,
-    navigation: false,
-    pagination: { clickable: true },
+    navigation: true,
+    pagination: {
+      clickable: true,
+      type: 'bullets'
+    },
     scrollbar: { draggable: true }
   };
 

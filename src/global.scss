@@ -28,3 +28,14 @@
 @import 'swiper/scss';
 @import 'swiper/scss/navigation';
 @import 'swiper/scss/pagination';
+
+//Posición de los bullets de paginación
+.swiper-pagination {
+    position: relative;
+    text-align: center;
+    transition: 300ms opacity;
+    transform: translate3d(0, 0, 0);
+    z-index: 10;
+    padding-top: 15px;
+
+}
