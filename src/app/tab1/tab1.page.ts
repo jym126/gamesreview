@@ -164,7 +164,7 @@ export class Tab1Page implements OnInit {
         this.carga = false;
         location.reload();
         // this.navCtrl.navigateRoot(['./tabs/tab1']);
-      }, 300);
+      }, 200);
     }
 
 }
