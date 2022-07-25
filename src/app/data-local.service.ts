@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/member-ordering */
 /* eslint-disable no-underscore-dangle */
 import { Injectable } from '@angular/core';
 import { ToastController } from '@ionic/angular';
@@ -9,8 +10,9 @@ import { Detalle } from './interfaces/interfaces';
 })
 export class DataLocalService {
 
-
   private _juegos: Detalle[] = [];
+  temas: any[] = [];
+
   private _storage: Storage | null=null;
 
   constructor(private storage: Storage,
@@ -26,6 +28,7 @@ export class DataLocalService {
     const storage = await this.storage.create();
     this._storage = storage;
     this.cargarFavoritos();
+    this.cargarTema();
    }
 
 
@@ -41,7 +44,7 @@ export class DataLocalService {
       mensaje = 'Removido de favoritos';
     }else {
       this._juegos = [juego, ...this._juegos];
-      // this._juegos.push(juego);
+      // this._juegos.push(juego); es lo mismo que arriba
       mensaje = 'Agregada a favorito';
     }
     this.presentToast(mensaje);
@@ -67,5 +70,23 @@ export class DataLocalService {
 
   gameInFavorites(id) {
     return !!this._juegos.find(game => game.id === id);
+  }
+
+  guardarTema(tema: string) {
+    this.temas = [];
+    this.temas.push(tema);
+    this._storage.set('tema', this.temas);
+  }
+
+  async cargarTema() {
+    const tema = await this._storage.get('tema');
+    this.temas = tema;
+
+    if(this.temas[0] === 'dark') {
+    document.body.setAttribute('color-theme', 'dark');
+    }else {
+      document.body.setAttribute('color-theme', 'light');
+    }
+    return this.temas;
   }
 }

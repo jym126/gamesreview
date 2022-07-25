@@ -24,7 +24,7 @@
             </ion-col>
           </ion-row>
         </ion-card-header>
-        <ion-card-content> {{game.description}}</ion-card-content>
+        <ion-card-content> {{game.description | removehtmltag}}</ion-card-content>
       </ion-card>
     </ng-template>
   </swiper>

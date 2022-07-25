@@ -16,7 +16,10 @@
 
 <ion-content>
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content refreshingSpinner="circles"></ion-refresher-content>
+    <ion-refresher-content 
+    refreshingSpinner="circles"
+    refreshingText="Cargando..."
+    ></ion-refresher-content>
   </ion-refresher>
   <swiper 
   [config]="config" #swiper

@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable @typescript-eslint/member-ordering */
@@ -6,7 +7,7 @@ import { GameService } from '../gameServices.service';
 import SwiperCore, { SwiperOptions, Pagination, Navigation } from 'swiper';
 import { Detalle, Game } from '../interfaces/interfaces';
 import { DetalleComponent } from '../components/detalle/detalle.component';
-import { ActionSheetController, ModalController, Platform } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';//para compartir en redes sociales
 import { DataLocalService } from '../data-local.service';
 import { ThemeService } from '../theme.service';
@@ -54,7 +55,8 @@ export class Tab1Page implements OnInit {
               private dataLocal: DataLocalService,
               private ts: ThemeService,
               private platform: Platform,
-              private iab: InAppBrowser) {}
+              private iab: InAppBrowser
+              ) {}
 
   ngOnInit() {
     this.getGames();
@@ -160,7 +162,9 @@ export class Tab1Page implements OnInit {
       setTimeout(() => {
         event.target.complete();
         this.carga = false;
-        window.location.reload();
-      }, 1000);
+        location.reload();
+        // this.navCtrl.navigateRoot(['./tabs/tab1']);
+      }, 300);
     }
+
 }

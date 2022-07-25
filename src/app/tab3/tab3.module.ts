@@ -8,6 +8,7 @@ import { ExploreContainerComponentModule } from '../explore-container/explore-co
 
 import { Tab3PageRoutingModule } from './tab3-routing.module';
 import { SwiperModule } from 'swiper/angular';
+import { RemovehtmltagPipe } from '../removehtmltags.pipe';
 
 
 @NgModule({
@@ -20,6 +21,6 @@ import { SwiperModule } from 'swiper/angular';
     Tab3PageRoutingModule,
     SwiperModule
   ],
-  declarations: [Tab3Page]
+  declarations: [Tab3Page, RemovehtmltagPipe]
 })
 export class Tab3PageModule {}

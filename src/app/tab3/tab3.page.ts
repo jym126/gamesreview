@@ -8,6 +8,7 @@ import { Detalle } from '../interfaces/interfaces';
 import { GameService } from '../gameServices.service';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 
+
 @Component({
   selector: 'app-tab3',
   templateUrl: 'tab3.page.html',
