@@ -8,7 +8,7 @@ import SwiperCore, { SwiperOptions, Pagination, Navigation } from 'swiper';
 import { Detalle, Game } from '../interfaces/interfaces';
 import { DetalleComponent } from '../components/detalle/detalle.component';
 import { ActionSheetController, ModalController, Platform } from '@ionic/angular';
-import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';//para compartir en redes sociales
+import { Share } from '@capacitor/share';//para compartir en redes sociales
 import { DataLocalService } from '../data-local.service';
 import { ThemeService } from '../theme.service';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
@@ -51,7 +51,6 @@ export class Tab1Page implements OnInit {
 
   constructor(private gameServ: GameService,
               private mc: ModalController,
-              private ss: SocialSharing,
               private asc: ActionSheetController,
               private dataLocal: DataLocalService,
               private ts: ThemeService,
@@ -129,16 +128,16 @@ export class Tab1Page implements OnInit {
   }
 
   //Método para compartir con otras aplicaciones
-  onShareGame(id) {
+  async onShareGame(id) {
     this.gameServ.getGame(id)
     .subscribe(resp => this.description = resp);
     const {name, website, rating}: any = this.description;
-    this.ss.share(
-      website,
-      name,
-      null,
-      'Rating: '+ rating.toString()
-    );
+    await Share.share({
+      title: name,
+      text: 'Echa un vistazo a este juego increible',
+      url: website,
+      dialogTitle: rating,
+    });
   }
 
   //Método para añadir o quitar de favoritos

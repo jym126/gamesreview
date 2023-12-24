@@ -6,7 +6,7 @@ import { DetalleComponent } from '../components/detalle/detalle.component';
 import { ActionSheetController, ModalController } from '@ionic/angular';
 import { Detalle } from '../interfaces/interfaces';
 import { GameService } from '../gameServices.service';
-import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
+import { Share } from '@capacitor/share';//para compartir en redes sociales
 
 
 @Component({
@@ -34,7 +34,6 @@ export class Tab3Page implements OnInit {
   constructor(private dataLocal: DataLocalService,
               private mc: ModalController,
               private asc: ActionSheetController,
-              private ss: SocialSharing,
               private gameServ: GameService,) {}
 
   ngOnInit() {
@@ -80,16 +79,16 @@ export class Tab3Page implements OnInit {
     }
 
     //Método para compartir con otras aplicaciones
-    onShareGame(id) {
+    async onShareGame(id) {
       this.gameServ.getGame(id)
       .subscribe(resp => this.description = resp);
       const {name, website, rating}: any = this.description;
-      this.ss.share(
-        website,
-        name,
-        null,
-        'Rating: '+ rating.toString()
-      );
+      await Share.share({
+        title: name,
+        text: 'Echa un vistazo a este juego increible',
+        url: website,
+        dialogTitle: rating,
+      });
     }
 
   //Método para añadir o quitar de favoritos
