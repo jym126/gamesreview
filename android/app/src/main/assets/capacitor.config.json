@@ -1,6 +1,6 @@
 {
-	"appId": "io.ionic.gameReview",
-	"appName": "GameRieview",
+	"appId": "com.developmentmartinez.gamesReview",
+	"appName": "Games Review",
 	"webDir": "www",
 	"bundledWebRuntime": false
 }

@@ -7,11 +7,12 @@ import { GameService } from '../gameServices.service';
 import SwiperCore, { SwiperOptions, Pagination, Navigation } from 'swiper';
 import { Detalle, Game } from '../interfaces/interfaces';
 import { DetalleComponent } from '../components/detalle/detalle.component';
-import { ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
+import { ActionSheetController, ModalController, Platform } from '@ionic/angular';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';//para compartir en redes sociales
 import { DataLocalService } from '../data-local.service';
 import { ThemeService } from '../theme.service';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
+import { PushService } from '../services/push.service';
 
 
 SwiperCore.use([Pagination, Navigation]);
@@ -55,11 +56,14 @@ export class Tab1Page implements OnInit {
               private dataLocal: DataLocalService,
               private ts: ThemeService,
               private platform: Platform,
-              private iab: InAppBrowser
-              ) {}
+              private iab: InAppBrowser,
+              private pushNot: PushService
+              ) {
+              }
 
   ngOnInit() {
     this.getGames();
+    this.pushNot.pushNotification();
   }
 
   //Para obtener un unico juego por su id
