@@ -35,7 +35,7 @@ export class Tab1Page implements OnInit {
   config: SwiperOptions = {
     slidesPerView: 1,
     spaceBetween: 1,
-    navigation: true,
+    navigation: false,
     pagination: {
       clickable: true,
       type: 'bullets'
