@@ -12,7 +12,7 @@ import { Share } from '@capacitor/share';//para compartir en redes sociales
 import { DataLocalService } from '../data-local.service';
 import { ThemeService } from '../theme.service';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
-import { PushService } from '../services/push.service';
+import { PushService } from '../services/push.service'; //Para enviar notificaciones push a la app
 
 
 SwiperCore.use([Pagination, Navigation]);
