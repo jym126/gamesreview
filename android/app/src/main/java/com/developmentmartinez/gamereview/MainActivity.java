@@ -1,4 +1,4 @@
-package com.developmentmartinez.gameReview;
+package com.developmentmartinez.gamereview;
 
 import com.getcapacitor.BridgeActivity;
 
