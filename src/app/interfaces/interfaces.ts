@@ -11,6 +11,7 @@ export interface Game {
 
 export interface Games {
     id: number;
+    slug: string;
     name?: string;
     playtime?: number;
     platforms?: Platforms[];
@@ -19,11 +20,20 @@ export interface Games {
     background_image?: string;
     rating?: number;
     genres?: Genres[];
+    tags?: Tags[];
+    short_screenshots?: Short_screenshots[];
 }
 
 export interface Platforms {
     platform?: Platform;
+}
 
+export interface Short_screenshots {
+    image?: string;
+}
+
+export interface Tags {
+    image_background?: string;
 }
 
 export interface Platform {

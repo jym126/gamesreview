@@ -6,8 +6,8 @@
     <ion-title slot="end">
       Tema
     </ion-title>
-    <ion-toggle 
-        color="light" 
+    <ion-toggle
+        color="light"
         slot="end"
         (ionChange)="changeTheme($event)"
         ></ion-toggle>
@@ -16,12 +16,12 @@
 
 <ion-content>
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content 
+    <ion-refresher-content
     refreshingSpinner="circles"
     refreshingText="Cargando..."
     ></ion-refresher-content>
   </ion-refresher>
-  <swiper 
+  <swiper
   [config]="config" #swiper
   (slideChange)="onSlideChange()">
   <ng-template swiperSlide *ngFor="let game of games.results; let i = index">
@@ -32,7 +32,7 @@
         <ion-row  class="ion-align-items-center">
           <ion-col size="8" slots="start">
               <ion-label expand="block">{{game.name}}</ion-label>
-              
+
             </ion-col>
             <ion-col slots="end">
               <ion-button (click)="onOpenMenu(game.id)" fill="clear" expand="block">
@@ -43,7 +43,9 @@
         </ion-card-title>
       </ion-card-header>
       <ion-img [src]="game.background_image"  (click)="verDetalle(game.id)"></ion-img>
-      
+      <ion-item-divider></ion-item-divider>
+      <ion-img [src]="game.short_screenshots[1].image"  (click)="verDetalle(game.id)"></ion-img>
+
       <ion-button (click)="sinopsis(game.id)" fill="clear" shape="round">
         {{leer}}
       </ion-button>
@@ -60,6 +62,16 @@
           <ion-label>Puntuación:</ion-label>
           <ion-icon slot="start" name="thumbs-up-outline" color="primary" expand="block"></ion-icon>
           {{game.rating}} / 5
+        </ion-item>
+        <ion-item>
+          <ion-label>Trailers:</ion-label>
+          <ion-icon slot="start" name="videocam-outline" color="primary" expand="block"></ion-icon>
+          <span (click)="openWebBrowser('https://www.youtube.com/results?search_query='+game.slug+' trailer oficial, partner')"><a>Aquí</a></span>
+        </ion-item>
+        <ion-item>
+          <ion-label>Votar:</ion-label>
+          <ion-icon slot="start" name="checkbox-outline" color="primary" expand="block"></ion-icon>
+          <span (click)="openWebBrowser('https://rawg.io/games/'+game.slug)"><a>Aquí</a></span>
         </ion-item>
     </ion-card>
   </ng-template>
