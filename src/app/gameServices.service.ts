@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
@@ -10,8 +11,7 @@ export class GameService {
 
   id: number;
 
-  time = Date();
-  time2 = new Date();
+  time = new Date();
 
   url = environment.url;
   apiKey = environment.apiKey;
@@ -19,18 +19,29 @@ export class GameService {
   constructor(private http: HttpClient, public dp: DatePipe) { }
 
   fecha1() {
-    const lastweek = new Date(this.time2.getFullYear(), this.time2.getMonth()-1, this.time2.getDate());
-    const time2 = this.dp.transform(lastweek, 'yyyy-MM-dd');
-    return time2;
+    const lastweek = new Date(this.time.getFullYear(), this.time.getMonth(), this.time.getDate()-7);
+    const time = this.dp.transform(lastweek, 'yyyy-MM-dd');
+    return time;
   }
 
   fecha2() {
-    const time = this.dp.transform(this.time, 'yyyy-MM-dd');
+    const today = new Date(this.time.getFullYear(), this.time.getMonth(), this.time.getDate()+5);
+    const time = this.dp.transform(today, 'yyyy-MM-dd');
+    return time;
+  }
+
+  fecha3() {
+    const lastweek = new Date(this.time.getFullYear(), this.time.getMonth(), this.time.getDate());
+    const time = this.dp.transform(lastweek, 'yyyy-MM-dd');
     return time;
   }
 
   getGames() {
-    return this.http.get(`${this.url}?key=${this.apiKey}&dates=${this.fecha1()},${this.fecha2()}&pages=1,2,3`);
+    return this.http.get(`${this.url}?key=${this.apiKey}&dates=${this.fecha1()},${this.fecha2()}&pages=1,2,3&page_size=24`);
+  }
+
+  getStarGames() {
+    return this.http.get(`${this.url}?key=${this.apiKey}&dates=${this.fecha3()},${this.fecha2()}&pages=1,2,3&page_size=20`);
   }
 
   getGame(id) {
