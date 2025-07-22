@@ -7,9 +7,9 @@
       Tema
     </ion-title>
     <ion-toggle
-        color="light"
-        slot="end"
-        (ionChange)="changeTheme($event)">
+      color="light"
+      slot="end"
+      (ionChange)="changeTheme($event)">
     </ion-toggle>
   </ion-toolbar>
 </ion-header>
@@ -23,9 +23,9 @@
   </ion-refresher>
 
   <!-- Swiper Container Moderno -->
-  <swiper-container #swiper [init]="false" class="my-custom-swiper">
-    <swiper-slide *ngFor="let game of games.results; let i = index">
-      <ion-card *ngIf="carga === false">
+  <swiper-container #swiper [init]="true" class="my-custom-swiper">
+    <swiper-slide *ngFor="let game of games.results || []; let i = index">
+      <ion-card>
         <ion-card-header>
           <ion-card-title>
             <ion-row class="ion-align-items-center">

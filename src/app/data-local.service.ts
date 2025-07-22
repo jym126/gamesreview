@@ -78,15 +78,16 @@ export class DataLocalService {
     this._storage.set('tema', this.temas);
   }
 
-  async cargarTema() {
-    const tema = await this._storage.get('tema');
-    this.temas = tema;
+async cargarTema() {
+  const tema = await this._storage.get('tema');
+  this.temas = tema || [];
 
-    if(this.temas[0] === 'dark') {
+  if(this.temas.length > 0 && this.temas[0] === 'dark') {
     document.body.setAttribute('color-theme', 'dark');
-    }else {
-      document.body.setAttribute('color-theme', 'light');
-    }
-    return this.temas;
+  } else {
+    document.body.setAttribute('color-theme', 'light');
   }
+  return this.temas;
+}
+
 }

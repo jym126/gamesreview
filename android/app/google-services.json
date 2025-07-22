@@ -2,22 +2,17 @@
   "project_info": {
     "project_number": "291574326761",
     "project_id": "pushapp-6c6fb",
-    "storage_bucket": "pushapp-6c6fb.appspot.com"
+    "storage_bucket": "pushapp-6c6fb.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:291574326761:android:fe0fa9f5fb558a11135778",
+        "mobilesdk_app_id": "1:291574326761:android:f82bd5511d1b0f23135778",
         "android_client_info": {
-          "package_name": "com.developmentmartinez.gamereview"
+          "package_name": "com.developmentmartinez.gamesReview"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "291574326761-gt74ttirrs2s1i0sgpesnlrvemfnlkqm.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyBLWq3CprIXjH8Eh5Zm8OIlHm7fqSgKRyE"
@@ -25,12 +20,26 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "291574326761-gt74ttirrs2s1i0sgpesnlrvemfnlkqm.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:291574326761:android:40802ea812ec1e12135778",
+        "android_client_info": {
+          "package_name": "com.developmentmartinez.guiaTV"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLWq3CprIXjH8Eh5Zm8OIlHm7fqSgKRyE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
         }
       }
     },
@@ -41,12 +50,7 @@
           "package_name": "com.developmentmartinez.push"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "291574326761-gt74ttirrs2s1i0sgpesnlrvemfnlkqm.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyBLWq3CprIXjH8Eh5Zm8OIlHm7fqSgKRyE"
@@ -54,12 +58,7 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "291574326761-gt74ttirrs2s1i0sgpesnlrvemfnlkqm.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

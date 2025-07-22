@@ -8,14 +8,15 @@
 
 <ion-content>
 
-  <ion-searchbar
+<ion-searchbar
   [animated]="true"
-  placeholder = {{value}}
-  (ionChange)="findGame($event)" 
-  [debounce]="550" 
+  placeholder="{{ value }}"
+  (ionInput)="findGame($event)"
+  [debounce]="550"
   (click)="onClick()"
   color="primary">
 </ion-searchbar>
+
 
 <ion-row>
   <ion-label class="ion-padding" color="secondary">Sugerencias:</ion-label>

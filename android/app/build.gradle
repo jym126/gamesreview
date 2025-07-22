@@ -1,13 +1,15 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    namespace "com.developmentmartinez.gamesReview"
+    compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.developmentmartinez.gamereview"
+        applicationId "com.developmentmartinez.gamesReview"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 6
-        versionName "1.6"
+        versionCode 7
+        versionName "1.7"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -27,12 +29,12 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     //noinspection GradleDependency
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    //noinspection GradleDependency
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
     implementation project(':capacitor-android')
-    //noinspection GradleDependency
     testImplementation "junit:junit:$junitVersion"
-    //noinspection GradleDependency
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
-    //noinspection GradleDependency
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
 }

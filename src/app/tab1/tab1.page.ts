@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { GameService } from '../gameServices.service';
 import { Detalle, Game } from '../interfaces/interfaces';
 import { DetalleComponent } from '../components/detalle/detalle.component';
@@ -11,6 +11,8 @@ import { PushService } from '../services/push.service';
 import { SwiperContainer } from 'swiper/element';
 import { SwiperOptions } from 'swiper/types';
 import { Capacitor } from '@capacitor/core';
+import type { RefresherCustomEvent } from '@ionic/angular';
+
 
 @Component({
   selector: 'app-tab1',
@@ -18,9 +20,9 @@ import { Capacitor } from '@capacitor/core';
   styleUrls: ['tab1.page.scss'],
   standalone: false,
 })
-export class Tab1Page implements OnInit {
-  @ViewChild('swiper') swiperRef?: SwiperContainer;
-  
+export class Tab1Page implements OnInit, AfterViewInit {
+  @ViewChild('swiper') swiper?: SwiperContainer;
+
   @Input() id: number;
   marcado = 'close-circle-outline';
   games: Game = {};
@@ -29,7 +31,6 @@ export class Tab1Page implements OnInit {
   carga = false;
   leer = 'Leer mas...';
 
-  // Configuración moderna de Swiper (v8+)
   swiperConfig: SwiperOptions = {
     slidesPerView: 1,
     spaceBetween: 10,
@@ -59,25 +60,21 @@ export class Tab1Page implements OnInit {
   }
 
   ngAfterViewInit() {
-    // Inicialización segura del Swiper
-    setTimeout(() => {
-      if (this.swiperRef) {
-        Object.assign(this.swiperRef, this.swiperConfig);
-      }
-    });
-  }
-
-  // Control de notificaciones push
-private async initializePushNotifications() {
-  if (Capacitor.isNativePlatform()) {
-    try {
-      await this.pushNot.pushNotification();
-    } catch (error) {
-      console.error('Error en push notifications:', error);
-      // Opcional: Mostrar mensaje al usuario
+    if (this.swiper) {
+      Object.assign(this.swiper, this.swiperConfig);
+      // No inicializamos aquí porque no hay datos aún
     }
   }
-}
+
+  private async initializePushNotifications() {
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await this.pushNot.pushNotification();
+      } catch (error) {
+        console.error('Error en push notifications:', error);
+      }
+    }
+  }
 
   getGames() {
     this.gameServ.getGames().subscribe(resp => {
@@ -91,7 +88,9 @@ private async initializePushNotifications() {
     this.leer = 'Leer mas...';
   }
 
-  async verDetalle(id: number) {
+async verDetalle(id: number) {
+  const topModal = await this.mc.getTop();
+  if (!topModal) {
     this.gameServ.id = id;
     const modal = await this.mc.create({
       component: DetalleComponent,
@@ -99,6 +98,8 @@ private async initializePushNotifications() {
     });
     await modal.present();
   }
+}
+
 
   sinopsis(id: number) {
     if (this.leer === 'Leer mas...') {
@@ -171,13 +172,13 @@ private async initializePushNotifications() {
     }
   }
 
-async doRefresh(event: CustomEvent<IonRefresher>) {
-  this.carga = true;
-  try {
-    await this.getGames(); // Espera a que se completen los datos
-  } finally {
-    event.detail.complete(); // Usamos detail en lugar de target
-    this.carga = false;
+  doRefresh(event: RefresherCustomEvent) {
+    this.carga = true;
+    this.gameServ.getGames().subscribe(resp => {
+      this.games = resp;
+      this.carga = false;
+      event.detail.complete();
+      setTimeout(() => this.swiper?.initialize(), 100);
+    });
   }
-}
 }
