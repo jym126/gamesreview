@@ -7,31 +7,31 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-
-  <swiper [config]="config" #swiper>
-    <ng-template swiperSlide *ngFor="let game of juegosFavoritos">
+  <!-- Swiper Container Moderno -->
+  <swiper-container #swiper [init]="false">
+    <swiper-slide *ngFor="let game of juegosFavoritos">
       <ion-card>
         <img [src]="game.background_image" class="slide-image" mode="md" (click)="verDetalle(game.id)" />
         <ion-card-header>
           <ion-row>
             <ion-col size="8">
-              <ion-card-subtitle slots="start"><h1>{{game.name}}</h1></ion-card-subtitle>
+              <ion-card-subtitle><h1>{{game.name}}</h1></ion-card-subtitle>
             </ion-col>
             <ion-col size="4">              
-              <ion-button (click)="onOpenMenu(game.id)" fill="clear" expand="block" slots="end">
+              <ion-button (click)="onOpenMenu(game.id)" fill="clear" expand="block">
                 <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
               </ion-button>
             </ion-col>
           </ion-row>
         </ion-card-header>
-        <ion-card-content> {{game.description | removehtmltag}}</ion-card-content>
+        <ion-card-content>{{game.description}}</ion-card-content>
       </ion-card>
-    </ng-template>
-  </swiper>
+    </swiper-slide>
+  </swiper-container>
 
   <ion-row>
     <ion-col size="12" style="text-align:right" expand="block">
-      <a class="credit" href="https://rawg.io/"  style="font-size: 8px">Data provided by: RAWG</a>
+      <a class="credit" href="https://rawg.io/" style="font-size: 8px">Data provided by: RAWG</a>
     </ion-col>
   </ion-row>
 </ion-content>

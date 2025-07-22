@@ -7,67 +7,68 @@
 <ion-content>
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content 
-    refreshingSpinner="circles"
-    refreshingText="Cargando..."
-    ></ion-refresher-content>
+      refreshingSpinner="circles"
+      refreshingText="Cargando...">
+    </ion-refresher-content>
   </ion-refresher>
-  <swiper 
-  [config]="config" #swiper
-  (slideChange)="onSlideChange()">
-  <ng-template swiperSlide *ngFor="let game of games.results; let i = index">
-    <ion-card
-    *ngIf="carga === false">
-    <ion-card-header>
-      <ion-card-title>
-        <ion-row  class="ion-align-items-center">
-          <ion-col size="8" slots="start">
-              <ion-label expand="block">{{game.name}}</ion-label>
-            </ion-col>
-            <ion-col slots="end">
-              <ion-button (click)="onOpenMenu(game.id)" fill="clear" expand="block">
-                <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
-              </ion-button>
-            </ion-col>
-          </ion-row>
-        </ion-card-title>
-      </ion-card-header>
 
-      <div *ngFor="let item of game.short_screenshots | slice:0:3; let i = index">
-        <ion-img [src]="item.image"  (click)="verDetalle(game.id)"></ion-img>
-        <ion-item-divider>
-        </ion-item-divider>
-      </div>
-      
-      <ion-button (click)="sinopsis(game.id)" fill="clear" shape="round">
-        {{leer}}
-      </ion-button>
-      <ion-item *ngIf="oculto !== 0">
-        {{description.description_raw}}
-      </ion-item>
+  <!-- Swiper Container Moderno -->
+  <swiper-container #swiper [init]="false" (slidechange)="onSlideChange()">
+    <swiper-slide *ngFor="let game of games.results; let i = index">
+      <ion-card *ngIf="carga === false">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-row class="ion-align-items-center">
+              <ion-col size="8" slots="start">
+                <ion-label expand="block">{{game.name}}</ion-label>
+              </ion-col>
+              <ion-col slots="end">
+                <ion-button (click)="onOpenMenu(game.id)" fill="clear" expand="block">
+                  <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-card-title>
+        </ion-card-header>
+
+        <div *ngFor="let item of game.short_screenshots | slice:0:3; let i = index">
+          <ion-img [src]="item.image" (click)="verDetalle(game.id)"></ion-img>
+          <ion-item-divider></ion-item-divider>
+        </div>
+        
+        <ion-button (click)="sinopsis(game.id)" fill="clear" shape="round">
+          {{leer}}
+        </ion-button>
+        
+        <ion-item *ngIf="oculto !== 0">
+          {{description.description_raw}}
+        </ion-item>
 
         <ion-item>
           <ion-label>Lanzamiento:</ion-label>
           <ion-icon slot="start" name="rocket-outline" color="primary"></ion-icon>
           {{game.released}}
         </ion-item>
+        
         <ion-item>
           <ion-label>Puntuación:</ion-label>
           <ion-icon slot="start" name="thumbs-up-outline" color="primary" expand="block"></ion-icon>
           {{game.rating}} / 5
         </ion-item>
+        
         <ion-item>
           <ion-label>Trailer / Votar:</ion-label>
           <ion-icon slot="start" name="videocam-outline" color="primary" expand="block"></ion-icon>
           <span (click)="openWebBrowser('https://rawg.io/games/'+game.slug)"><a>Aquí</a></span>
         </ion-item>
-    </ion-card>
-  </ng-template>
-</swiper>
+      </ion-card>
+    </swiper-slide>
+  </swiper-container>
 
-<ion-row>
-  <ion-col size="12" style="text-align:right" expand="block"
-    class="credit" (click)="openWebBrowser('https://rawg.io/')"><a style="font-size: 8px">Data provided by: RAWG</a>
-  </ion-col>
-</ion-row>
-
+  <ion-row>
+    <ion-col size="12" style="text-align:right" expand="block"
+      class="credit" (click)="openWebBrowser('https://rawg.io/')">
+      <a style="font-size: 8px">Data provided by: RAWG</a>
+    </ion-col>
+  </ion-row>
 </ion-content>

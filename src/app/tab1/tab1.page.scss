@@ -20,3 +20,25 @@ ion-refresher-content {
     text-align: center;
     color: rgb(20, 23, 228);
 }
+
+//swiper
+/* Importa estilos básicos de Swiper */
+@import 'swiper/scss';
+@import 'swiper/scss/pagination';
+@import 'swiper/scss/navigation';
+
+/* Estilos personalizados */
+swiper-container {
+  --swiper-pagination-color: var(--ion-color-primary);
+  --swiper-navigation-color: var(--ion-color-primary);
+  --swiper-pagination-bullet-inactive-color: var(--ion-color-medium);
+  padding: 10px 0;
+}
+
+swiper-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 5px;
+  box-sizing: border-box;
+}

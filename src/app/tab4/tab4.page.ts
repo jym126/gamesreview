@@ -1,27 +1,27 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-/* eslint-disable @typescript-eslint/member-ordering */
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 import { ModalController, ActionSheetController, Platform } from '@ionic/angular';
-import SwiperCore, { SwiperOptions, Pagination, Navigation } from 'swiper';
-import { DetalleComponent } from '../components/detalle/detalle.component';
-import { DataLocalService } from '../data-local.service';
 import { GameService } from '../gameServices.service';
-import { Game, Detalle } from '../interfaces/interfaces';
+import { DataLocalService } from '../data-local.service';
 import { PushService } from '../services/push.service';
 import { ThemeService } from '../theme.service';
+import { DetalleComponent } from '../components/detalle/detalle.component';
+import { Game, Detalle } from '../interfaces/interfaces';
+import { SwiperContainer } from 'swiper/element';
+import { IonHeader, IonToolbar, IonRow, IonTitle } from "@ionic/angular/standalone";
 
-
-SwiperCore.use([Pagination, Navigation]);
 @Component({
   selector: 'app-tab4',
   templateUrl: './tab4.page.html',
   styleUrls: ['./tab4.page.scss'],
+  standalone: false,
 })
 export class Tab4Page implements OnInit {
+  @ViewChild('swiper') swiper?: SwiperContainer;
 
   @Input() id;
+
   marcado = 'close-circle-outline';
   games: Game = {};
   description: Detalle = {};
@@ -29,24 +29,21 @@ export class Tab4Page implements OnInit {
   carga = false;
   leer = 'Leer mas...';
 
-  config: SwiperOptions = {
+  // Configuración moderna de Swiper
+  swiperConfig = {
     slidesPerView: 1,
-    spaceBetween: 1,
+    spaceBetween: 10,
+    pagination: { clickable: true },
     navigation: false,
-    pagination: {
-      clickable: true,
-      type: 'bullets'
-    },
-    scrollbar: { draggable: true }
+    breakpoints: {
+      640: { slidesPerView: 2 },
+      768: { slidesPerView: 3 },
+      1024: { slidesPerView: 4 }
+    }
   };
 
-  onSlideChange() {
-    this.oculto=0;
-    this.description = {};
-    this.leer = `Leer mas...`;
-  }
-
-  constructor(private gameServ: GameService,
+  constructor(
+    private gameServ: GameService,
     private mc: ModalController,
     private ss: SocialSharing,
     private asc: ActionSheetController,
@@ -54,11 +51,23 @@ export class Tab4Page implements OnInit {
     private ts: ThemeService,
     private platform: Platform,
     private iab: InAppBrowser,
-    private pushNot: PushService) { }
+    private pushNot: PushService
+  ) { }
 
   ngOnInit() {
     this.getGames();
     this.pushNot.pushNotification();
+  }
+
+  ngAfterViewInit() {
+    if (this.swiper) {
+      // Configuración de swiper aquí
+      Object.assign(this.swiper, {
+        slidesPerView: 1,
+        spaceBetween: 10,
+        pagination: { clickable: true }
+      });
+    }
   }
 
   //Para obtener un unico juego por su id
@@ -111,7 +120,6 @@ export class Tab4Page implements OnInit {
           cssClass: '',
           handler: ()=> this.onToggleFavorite(id)
         },
-
         {
           text: 'Cancelar',
           icon: this.marcado,
@@ -134,6 +142,12 @@ export class Tab4Page implements OnInit {
       null,
       'Rating: '+ rating.toString()
     );
+  }
+
+    onSlideChange() {
+    this.oculto = 0;
+    this.description = {};
+    this.leer = 'Leer mas...';
   }
 
   //Método para añadir o quitar de favoritos

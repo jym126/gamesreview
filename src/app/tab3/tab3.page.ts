@@ -1,43 +1,54 @@
-/* eslint-disable @typescript-eslint/member-ordering */
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataLocalService } from '../data-local.service';
-import SwiperCore, { SwiperOptions } from 'swiper';
 import { DetalleComponent } from '../components/detalle/detalle.component';
 import { ActionSheetController, ModalController } from '@ionic/angular';
 import { Detalle } from '../interfaces/interfaces';
 import { GameService } from '../gameServices.service';
-import { Share } from '@capacitor/share';//para compartir en redes sociales
-
+import { Share } from '@capacitor/share';
+import { SwiperContainer } from 'swiper/element';
+import { RemovehtmltagPipe } from '../removehtmltags.pipe'; 
 
 @Component({
   selector: 'app-tab3',
   templateUrl: 'tab3.page.html',
-  styleUrls: ['tab3.page.scss']
+  styleUrls: ['tab3.page.scss'],
+  standalone: false,
 })
 export class Tab3Page implements OnInit {
+   @ViewChild('swiper') swiper?: SwiperContainer;
 
   description: Detalle = {};
   marcado = 'close-circle-outline';
 
-  get juegosFavoritos(): Detalle[] {
-    return this.dataLocal.getLocalGames;
-  }
-
-  config: SwiperOptions = {
+  // Configuración moderna de Swiper
+  swiperConfig = {
     slidesPerView: 1,
-    spaceBetween: 1,
+    spaceBetween: 10,
     navigation: false,
     pagination: { clickable: true },
     scrollbar: { draggable: true }
   };
 
+  ngOnInit() {}
+
+  ngAfterViewInit() {
+    // Inicialización manual del Swiper
+    setTimeout(() => {
+      if (this.swiper) {
+        Object.assign(this.swiper, this.swiperConfig);
+        this.swiper.initialize();
+      }
+    });
+  }
+
+  get juegosFavoritos(): Detalle[] {
+    return this.dataLocal.getLocalGames;
+  }
+
   constructor(private dataLocal: DataLocalService,
               private mc: ModalController,
               private asc: ActionSheetController,
               private gameServ: GameService,) {}
-
-  ngOnInit() {
-   }
 
   async verDetalle(id: number) {
     const modal = await this.mc.create({
