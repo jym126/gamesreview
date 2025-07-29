@@ -5,7 +5,7 @@ android {
     namespace "com.developmentmartinez.gamereview"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.developmentmartinez.gamesReview"
+        applicationId "com.developmentmartinez.gamereview"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 7

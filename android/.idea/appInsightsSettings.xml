@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.developmentmartinez.gamesReview" />
-                  <option name="mobileSdkAppId" value="1:291574326761:android:f82bd5511d1b0f23135778" />
-                  <option name="projectId" value="pushapp-6c6fb" />
-                  <option name="projectNumber" value="291574326761" />
+                  <option name="appId" value="PLACEHOLDER" />
+                  <option name="mobileSdkAppId" value="" />
+                  <option name="projectId" value="" />
+                  <option name="projectNumber" value="" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
