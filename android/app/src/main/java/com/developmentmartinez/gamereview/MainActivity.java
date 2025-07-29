@@ -1,4 +1,4 @@
-package com.developmentmartinez.gamesReview;
+package com.developmentmartinez.gamereview;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;

@@ -3,7 +3,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.developmentmartinez.gamesReview',
+  appId: 'com.developmentmartinez.gamereview',
   appName: 'Games Review',
   webDir: 'www',
   bundledWebRuntime: false,
