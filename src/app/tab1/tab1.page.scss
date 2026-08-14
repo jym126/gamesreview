@@ -1,29 +1,31 @@
+/* ==========================================================================
+   Estilos base de Ionic y Swiper (Tus estilos originales)
+   ========================================================================== */
+
 ion-item {
-    ion-label {
-        font-size: large;
-        color: rgb(67, 96, 224);
-}
+  ion-label {
+    font-size: large;
+    color: rgb(67, 96, 224);
+  }
 }
 
 ion-item-divider {
-ion-label {
+  ion-label {
     font-size: large;
     color: rgb(67, 96, 224);
-}
+  }
 }
 
 ion-card {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 ion-refresher-content {
-    text-align: center;
-    color: rgb(20, 23, 228);
+  text-align: center;
+  color: rgb(20, 23, 228);
 }
 
-//swiper
-
-/* Estilos personalizados */
+/* Estilos personalizados para Swiper */
 swiper-container {
   --swiper-pagination-color: var(--ion-color-primary);
   --swiper-navigation-color: var(--ion-color-primary);
@@ -37,4 +39,88 @@ swiper-slide {
   align-items: center;
   padding: 0 5px;
   box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Estilos para las Tarjetas de Juegos y Novedades
+   ========================================================================== */
+
+.margin-top-spinner {
+  margin-top: 35vh;
+}
+
+.game-card {
+  margin: 8px 0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.cover-container {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background-color: var(--ion-color-step-100, #f4f5f8);
+
+  ion-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .rating-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .favorite-indicator {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 1.5rem;
+    filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5));
+  }
+}
+
+.card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  div {
+    flex: 1;
+    padding-right: 4px;
+  }
+}
+
+.game-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.summary-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+}
+
+.empty-icon {
+  font-size: 64px;
+  color: var(--ion-color-medium);
 }

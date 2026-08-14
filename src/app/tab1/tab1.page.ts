@@ -1,18 +1,10 @@
-import { Component, Input, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ActionSheetController, ModalController, RefresherCustomEvent } from '@ionic/angular';
 import { GameService } from '../gameServices.service';
-import { Detalle, Game } from '../interfaces/interfaces';
-import { DetalleComponent } from '../components/detalle/detalle.component';
-import { ActionSheetController, ModalController, Platform, IonRefresher } from '@ionic/angular';
-import { Share } from '@capacitor/share';
 import { DataLocalService } from '../data-local.service';
-import { ThemeService } from '../theme.service';
-import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
-import { PushService } from '../services/push.service';
-import { SwiperContainer } from 'swiper/element';
-import { SwiperOptions } from 'swiper/types';
-import { Capacitor } from '@capacitor/core';
-import type { RefresherCustomEvent } from '@ionic/angular';
-
+import { Game } from '../interfaces/interfaces';
+import { DetalleComponent } from '../components/detalle/detalle.component';
+import { Share } from '@capacitor/share';
 
 @Component({
   selector: 'app-tab1',
@@ -20,77 +12,64 @@ import type { RefresherCustomEvent } from '@ionic/angular';
   styleUrls: ['tab1.page.scss'],
   standalone: false,
 })
-export class Tab1Page implements OnInit, AfterViewInit {
-  @ViewChild('swiper') swiper?: SwiperContainer;
+export class Tab1Page implements OnInit {
 
-  @Input() id: number;
-  marcado = 'close-circle-outline';
-  games: Game = {};
-  description: Detalle = {};
-  oculto = 150;
-  carga = false;
-  leer = 'Leer mas...';
-
-  swiperConfig: SwiperOptions = {
-    slidesPerView: 1,
-    spaceBetween: 10,
-    navigation: false,
-    pagination: { clickable: true },
-    breakpoints: {
-      640: { slidesPerView: 2 },
-      768: { slidesPerView: 3 },
-      1024: { slidesPerView: 4 }
-    }
-  };
+  games: Game[] = [];
+  carga: boolean = false;
 
   constructor(
     private gameServ: GameService,
     private mc: ModalController,
     private asc: ActionSheetController,
-    private dataLocal: DataLocalService,
-    private ts: ThemeService,
-    private platform: Platform,
-    private iab: InAppBrowser,
-    private pushNot: PushService
+    public dataLocal: DataLocalService
   ) {}
 
   ngOnInit() {
-    this.getGames();
-    this.initializePushNotifications();
+    this.getNovedades();
   }
 
-  ngAfterViewInit() {
-    if (this.swiper) {
-      Object.assign(this.swiper, this.swiperConfig);
-      // No inicializamos aquí porque no hay datos aún
-    }
-  }
-
-  private async initializePushNotifications() {
-    if (Capacitor.isNativePlatform()) {
-      try {
-        await this.pushNot.pushNotification();
-      } catch (error) {
-        console.error('Error en push notifications:', error);
+  /**
+   * Obtiene los últimos 20 lanzamientos desde el servicio
+   */
+  getNovedades() {
+    this.carga = true;
+    this.gameServ.getNovedades(20).subscribe({
+      next: (resp: any[]) => {
+        this.games = this.formatGameImages(resp || []);
+        this.carga = false;
+      },
+      error: (err) => {
+        console.error('Error al obtener novedades:', err);
+        this.carga = false;
       }
-    }
-  }
-
-  getGames() {
-    this.gameServ.getGames().subscribe(resp => {
-      this.games = resp;
     });
   }
 
-  onSlideChange() {
-    this.oculto = 0;
-    this.description = {};
-    this.leer = 'Leer mas...';
+  /**
+   * Formatea la URL de la portada a HTTPS y alta resolución.
+   * Si no dispone de imagen, asigna la imagen local por defecto.
+   */
+  private formatGameImages(gamesList: any[]): Game[] {
+    const defaultImage = 'assets/noPicture.png';
+
+    return gamesList.map(game => {
+      if (game.cover && game.cover.url) {
+        let imageUrl = game.cover.url;
+        if (imageUrl.startsWith('//')) {
+          imageUrl = 'https:' + imageUrl;
+        }
+        game.background_image = imageUrl.replace('t_thumb', 't_cover_big');
+      } else {
+        game.background_image = defaultImage;
+      }
+      return game;
+    });
   }
 
-async verDetalle(id: number) {
-  const topModal = await this.mc.getTop();
-  if (!topModal) {
+  /**
+   * Abre la ficha del juego en el modal
+   */
+  async verDetalle(id: number) {
     this.gameServ.id = id;
     const modal = await this.mc.create({
       component: DetalleComponent,
@@ -98,22 +77,10 @@ async verDetalle(id: number) {
     });
     await modal.present();
   }
-}
 
-
-  sinopsis(id: number) {
-    if (this.leer === 'Leer mas...') {
-      this.oculto = 5000;
-      this.gameServ.getGame(id).subscribe(resp => {
-        this.description = resp;
-      });
-      this.leer = 'Leer menos';
-    } else {
-      this.description = {};
-      this.leer = 'Leer mas...';
-    }
-  }
-
+  /**
+   * Abre el ActionSheet con las opciones de Compartir y Favoritos
+   */
   async onOpenMenu(id: number) {
     const gameInFavorites = this.dataLocal.gameInFavorites(id);
 
@@ -133,52 +100,56 @@ async verDetalle(id: number) {
         {
           text: 'Cancelar',
           icon: 'close-circle-outline',
-          role: 'cancel'
+          role: 'cancel',
+          cssClass: 'cancel'
         }
       ]
     });
     await actionSheet.present();
   }
 
+  /**
+   * Comparte la información del juego a través de Capacitor Share
+   */
   async onShareGame(id: number) {
-    this.gameServ.getGame(id).subscribe(async resp => {
-      this.description = resp;
-      const { name, website, rating } = this.description;
+    this.gameServ.getGame(id).subscribe(async (gameDetail: any) => {
+      if (!gameDetail) return;
+      const { name, websites } = gameDetail;
+      const mainWebsite = websites && websites.length > 0 ? websites[0].url : 'https://www.igdb.com/';
+
       await Share.share({
         title: name,
-        text: `Mira este juego: ${name} (Rating: ${rating}/5)`,
-        url: website || 'https://rawg.io/',
-        dialogTitle: 'Compartir juego'
+        text: `¡Echa un vistazo a este juego increíble!: ${name}`,
+        url: mainWebsite,
+        dialogTitle: name
       });
     });
   }
 
+  /**
+   * Añade o elimina el juego de la lista local de favoritos
+   */
   onToggleFavorite(id: number) {
-    this.gameServ.getGame(id).subscribe(resp => {
-      this.dataLocal.guardarBorrarJuego(resp);
+    this.gameServ.getGame(id).subscribe((resp: any) => {
+      if (resp) {
+        this.dataLocal.guardarBorrarJuego(resp);
+      }
     });
   }
 
-  changeTheme(event: CustomEvent) {
-    event.detail.checked ? this.ts.enableDark() : this.ts.enableLight();
-  }
-
-  openWebBrowser(url: string) {
-    if (this.platform.is('ios') || this.platform.is('android')) {
-      const browser = this.iab.create(url);
-      browser.show();
-    } else {
-      window.open(url, '_blank');
-    }
-  }
-
+  /**
+   * Permite actualizar la lista al deslizar hacia abajo
+   */
   doRefresh(event: RefresherCustomEvent) {
-    this.carga = true;
-    this.gameServ.getGames().subscribe(resp => {
-      this.games = resp;
-      this.carga = false;
-      event.detail.complete();
-      setTimeout(() => this.swiper?.initialize(), 100);
+    this.gameServ.getNovedades(20).subscribe({
+      next: (resp: any[]) => {
+        this.games = this.formatGameImages(resp || []);
+        event.detail.complete();
+      },
+      error: (err) => {
+        console.error('Error al refrescar novedades:', err);
+        event.detail.complete();
+      }
     });
   }
 }

@@ -1,167 +1,111 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable eol-last */
 
-
-/* eslint-disable @typescript-eslint/no-empty-interface */
-export interface Game {
-    count?: number;
-    next?: string;
-    results?: Games[];
+/**
+ * Portada del juego
+ */
+export interface Cover {
+  id?: number;
+  url?: string;
+  image_id?: string;
+  width?: number;
+  height?: number;
 }
 
-export interface Games {
-    id: number;
-    slug: string;
-    name?: string;
-    playtime?: number;
-    platforms?: Platforms[];
-    stores?: string;
-    released?: string;
-    background_image?: string;
-    rating?: number;
-    genres?: Genres[];
-    tags?: Tags[];
-    short_screenshots?: Short_screenshots[];
+/**
+ * Sitios web y redes sociales vinculados
+ */
+export interface Website {
+  id?: number;
+  category?: number;
+  url?: string;
+  trusted?: boolean;
 }
 
-export interface Platforms {
-    platform?: Platform;
+/**
+ * Géneros
+ */
+export interface Genre {
+  id?: number;
+  name?: string;
+  slug?: string;
 }
 
-export interface Short_screenshots {
-    image?: string;
-}
-
-export interface Tags {
-    image_background?: string;
-}
-
+/**
+ * Plataformas
+ */
 export interface Platform {
-    id?: number;
-    name?: string;
+  id?: number;
+  name?: string;
+  slug?: string;
+  abbreviation?: string;
 }
 
-export interface Genres {
-    name?: string;
+/**
+ * Modos de juego (Singleplayer, Multiplayer, Co-op, etc.)
+ */
+export interface GameMode {
+  id?: number;
+  name?: string;
+  slug?: string;
 }
 
-
-//Detalles de juegos
-
-export interface Detalle {
-    id?:                          number;
-    slug?:                        string;
-    name?:                        string;
-    name_original?:               string;
-    description?:                 string;
-    metacritic?:                  null;
-    metacritic_platforms?:        any[];
-    released?:                    Date;
-    tba?:                         boolean;
-    updated?:                     Date;
-    background_image?:            string;
-    background_image_additional?: string;
-    website?:                     string;
-    rating?:                      number;
-    rating_top?:                  number;
-    ratings?:                     Rating[];
-    reactions?:                   { [key: string]: number };
-    added?:                       number;
-    added_by_status?:             AddedByStatus;
-    playtime?:                    number;
-    screenshots_count?:           number;
-    movies_count?:                number;
-    creators_count?:              number;
-    achievements_count?:          number;
-    parent_achievements_count?:   number;
-    reddit_url?:                  string;
-    reddit_name?:                 string;
-    reddit_description?:          string;
-    reddit_logo?:                 string;
-    reddit_count?:                number;
-    twitch_count?:                number;
-    youtube_count?:               number;
-    reviews_text_count?:          number;
-    ratings_count?:               number;
-    suggestions_count?:           number;
-    alternative_names?:           any[];
-    metacritic_url?:              string;
-    parents_count?:               number;
-    additions_count?:             number;
-    game_series_count?:           number;
-    user_game?:                   null;
-    reviews_count?:               number;
-    saturated_color?:             string;
-    dominant_color?:              string;
-    parent_platforms?:            ParentPlatform[];
-    platforms?:                   PlatformElement[];
-    stores?:                      Store[];
-    developers?:                  Developer[];
-    genres?:                      Developer[];
-    tags?:                        Developer[];
-    publishers?:                  Developer[];
-    esrb_rating?:                 EsrbRating;
-    clip?:                        null;
-    description_raw?:             string;
+/**
+ * Capturas de pantalla
+ */
+export interface Screenshot {
+  id?: number;
+  url?: string;
+  image_id?: string;
 }
 
-export interface AddedByStatus {
-    yet?:     number;
-    owned?:   number;
-    beaten?:  number;
-    toplay?:  number;
-    playing?: number;
+/**
+ * Desarrolladores / Empresas
+ */
+export interface Company {
+  id?: number;
+  name?: string;
+  slug?: string;
 }
 
-export interface Developer {
-    id?:               number;
-    name?:             string;
-    slug?:             string;
-    games_count?:      number;
-    image_background?: string;
-    domain?:          string;
-    language?:        string;
+export interface InvolvedCompany {
+  id?: number;
+  company?: Company;
+  developer?: boolean;
+  publisher?: boolean;
 }
 
-export interface EsrbRating {
-    id?:   number;
-    name?: string;
-    slug?: string;
+/**
+ * Modelo de Juego (Listados y Favoritos)
+ */
+export interface Game {
+  id: number;
+  name?: string;
+  summary?: string;         // Descripción general
+  storyline?: string;       // Historia/Trama
+  first_release_date?: number; // Timestamp Unix en segundos
+  rating?: number;          // Puntuación IGDB (0-100)
+  rating_count?: number;
+  total_rating?: number;
+  cover?: Cover;
+  websites?: Website[];
+  genres?: Genre[];
+  platforms?: Platform[];
+  screenshots?: Screenshot[];
+  url?: string;              // Enlace oficial de la ficha en IGDB
+  
+  // Propiedad auxiliar formateada en el cliente
+  background_image?: string;
 }
 
-export interface ParentPlatform {
-    platform?: EsrbRating;
-}
-
-export interface PlatformElement {
-    platform?:     PlatformPlatform;
-    released_at?:  Date;
-    requirements?: Requirements;
-}
-
-export interface PlatformPlatform {
-    id?:               number;
-    name?:             string;
-    slug?:             string;
-    image?:            null;
-    year_end?:         null;
-    year_start?:       number | null;
-    games_count?:      number;
-    image_background?: string;
-}
-
-export interface Requirements {
-}
-
-export interface Rating {
-    id?:      number;
-    title?:   string;
-    count?:   number;
-    percent?: number;
-}
-
-export interface Store {
-    id?:    number;
-    url?:   string;
-    store?: Developer;
+/**
+ * Detalle completo del juego
+ */
+export interface Detalle extends Game {
+  aggregated_rating?: number;
+  website?: string;
+  aggregated_rating_count?: number;
+  game_modes?: GameMode[];
+  involved_companies?: InvolvedCompany[];
+  similar_games?: Game[];
+  videos?: { id?: number; name?: string; video_id?: string }[];
 }

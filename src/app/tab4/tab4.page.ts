@@ -1,183 +1,154 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
-import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
-import { ModalController, ActionSheetController, Platform } from '@ionic/angular';
+import { Component, OnInit } from '@angular/core';
+import { ActionSheetController, ModalController, RefresherCustomEvent } from '@ionic/angular';
 import { GameService } from '../gameServices.service';
-import { DataLocalService } from '../data-local.service';
-import { PushService } from '../services/push.service';
-import { ThemeService } from '../theme.service';
 import { DetalleComponent } from '../components/detalle/detalle.component';
-import { Game, Detalle } from '../interfaces/interfaces';
-import { SwiperContainer } from 'swiper/element';
-import { IonHeader, IonToolbar, IonRow, IonTitle } from "@ionic/angular/standalone";
+import { DataLocalService } from '../data-local.service';
+import { Share } from '@capacitor/share';
+import { Game } from '../interfaces/interfaces';
 
 @Component({
   selector: 'app-tab4',
-  templateUrl: './tab4.page.html',
-  styleUrls: ['./tab4.page.scss'],
+  templateUrl: 'tab4.page.html',
+  styleUrls: ['tab4.page.scss'],
   standalone: false,
 })
 export class Tab4Page implements OnInit {
-  @ViewChild('swiper') swiper?: SwiperContainer;
 
-  @Input() id;
-
-  marcado = 'close-circle-outline';
-  games: Game = {};
-  description: Detalle = {};
-  oculto = 150;
-  carga = false;
-  leer = 'Leer mas...';
-
-  // Configuración moderna de Swiper
-  swiperConfig = {
-    slidesPerView: 1,
-    spaceBetween: 10,
-    pagination: { clickable: true },
-    navigation: false,
-    breakpoints: {
-      640: { slidesPerView: 2 },
-      768: { slidesPerView: 3 },
-      1024: { slidesPerView: 4 }
-    }
-  };
+  // ✅ CORREGIDO: Declarado como Array de Game en lugar de objeto individual
+  games: Game[] = [];
+  description: any = {};
+  carga: boolean = false;
 
   constructor(
     private gameServ: GameService,
     private mc: ModalController,
-    private ss: SocialSharing,
     private asc: ActionSheetController,
-    private dataLocal: DataLocalService,
-    private ts: ThemeService,
-    private platform: Platform,
-    private iab: InAppBrowser,
-    private pushNot: PushService
-  ) { }
+    private dataLocal: DataLocalService
+  ) {}
 
   ngOnInit() {
-    this.getGames();
-    this.pushNot.pushNotification();
+    this.getProximos();
   }
 
-  ngAfterViewInit() {
-    if (this.swiper) {
-      // Configuración de swiper aquí
-      Object.assign(this.swiper, {
-        slidesPerView: 1,
-        spaceBetween: 10,
-        pagination: { clickable: true }
-      });
-    }
+  /**
+   * Carga los próximos lanzamientos
+   */
+  getProximos() {
+    this.carga = true;
+    this.gameServ.getProximosLanzamientos(20).subscribe({
+      next: (resp: any[]) => {
+        this.games = this.formatGameImages(resp || []);
+        this.carga = false;
+      },
+      error: (err) => {
+        console.error('Error al obtener próximos lanzamientos:', err);
+        this.carga = false;
+      }
+    });
   }
 
-  //Para obtener un unico juego por su id
-  getGames() {
-    this.gameServ.getStarGames()
-    .subscribe(resp => {this.games = resp; });
+  /**
+   * Formatea las imágenes de IGDB a HTTPS y alta resolución (t_cover_big)
+   */
+  private formatGameImages(gamesList: any[]): Game[] {
+    return gamesList.map(game => {
+      if (game.cover && game.cover.url) {
+        let imageUrl = game.cover.url;
+        if (imageUrl.startsWith('//')) {
+          imageUrl = 'https:' + imageUrl;
+        }
+        game.background_image = imageUrl.replace('t_thumb', 't_cover_big');
+      }
+      return game;
+    });
   }
 
-  //Modal que nos lleva al componente paraver los detalles del juego
+  /**
+   * Abre el modal de detalle asignando la propiedad id en el servicio
+   */
   async verDetalle(id: number) {
     this.gameServ.id = id;
     const modal = await this.mc.create({
       component: DetalleComponent,
-      componentProps: {
-        id
-      }
+      componentProps: { id }
     });
-    modal.present();
+    await modal.present();
   }
 
-  //Muestra la sinopsis del juego
-  sinopsis(id) {
-    if(this.leer === 'Leer mas...') {
-    this.oculto = 5000;
-    this.gameServ.getGame(id)
-    .subscribe(resp => this.description = resp);
-    this.leer = 'Leer menos';
-    }else {
-      this.description = {};
-      this.leer = 'Leer mas...';
-    }
+  /**
+   * Conmuta la visibilidad de la sinopsis sin realizar llamadas de más
+   */
+  toggleSinopsis(game: any) {
+    game.expanded = !game.expanded;
   }
 
-  //Abre el actionsheet para poder compartir
-  async onOpenMenu(id) {
+  /**
+   * Guarda o elimina un juego de favoritos
+   */
+  onToggleFavorite(id: number) {
+    this.gameServ.getGame(id).subscribe((resp: any) => {
+      // resp ya es un objeto gracias al map((res: any[]) => res[0]) de GameService
+      this.dataLocal.guardarBorrarJuego(resp);
+    });
+  }
+
+  /**
+   * Opciones del ActionSheet
+   */
+  async onOpenMenu(id: number) {
     const gameInFavorites = this.dataLocal.gameInFavorites(id);
 
     const actionSheet = await this.asc.create({
       header: 'Opciones',
       buttons: [
         {
-        text: 'Compartir',
-        icon: 'Share-outline',
-        handler: ()=> this.onShareGame(id)
+          text: 'Compartir',
+          icon: 'share-outline',
+          handler: () => this.onShareGame(id)
         },
-
         {
-          text: 'Favoritos',
-          icon: gameInFavorites ? 'heart' : 'heart-outline', //Cambia el icono del corazón para saber si ya está o no en favoritos
-          cssClass: '',
-          handler: ()=> this.onToggleFavorite(id)
+          text: gameInFavorites ? 'Quitar de favoritos' : 'Añadir a favoritos',
+          icon: gameInFavorites ? 'heart' : 'heart-outline',
+          handler: () => this.onToggleFavorite(id)
         },
         {
           text: 'Cancelar',
-          icon: this.marcado,
-          role: 'cancel',
-          cssClass: 'cancel'
+          icon: 'close-circle-outline',
+          role: 'cancel'
         }
       ]
     });
     await actionSheet.present();
   }
 
-  //Método para compartir con otras aplicaciones
-  onShareGame(id) {
-    this.gameServ.getGame(id)
-    .subscribe(resp => this.description = resp);
-    const {name, website, rating}: any = this.description;
-    this.ss.share(
-      website,
-      name,
-      null,
-      'Rating: '+ rating.toString()
-    );
+  async onShareGame(id: number) {
+    this.gameServ.getGame(id).subscribe(async (gameDetail: any) => {
+      if (!gameDetail) return;
+      const { name, websites } = gameDetail;
+      const mainWebsite = websites && websites.length > 0 ? websites[0].url : 'https://www.igdb.com/';
+
+      await Share.share({
+        title: name,
+        text: `¡Próximo lanzamiento en camino!: ${name}`,
+        url: mainWebsite,
+        dialogTitle: 'Compartir juego'
+      });
+    });
   }
 
-    onSlideChange() {
-    this.oculto = 0;
-    this.description = {};
-    this.leer = 'Leer mas...';
+  /**
+   * Recarga de la lista
+   */
+  doRefresh(event: RefresherCustomEvent) {
+    this.gameServ.getProximosLanzamientos(20).subscribe({
+      next: (resp: any[]) => {
+        this.games = this.formatGameImages(resp || []);
+        event.detail.complete();
+      },
+      error: (err) => {
+        console.error('Error al refrescar próximos lanzamientos:', err);
+        event.detail.complete();
+      }
+    });
   }
-
-  //Método para añadir o quitar de favoritos
-  onToggleFavorite(id) {
-    this.gameServ.getGame(id)
-    .subscribe(resp => this.dataLocal.guardarBorrarJuego(resp));
-  }
-
-  changeTheme(event) {
-    event.detail.checked ? this.ts.enableDark() : this.ts.enableLight();
-  }
-
-    //Para abrir pagina del juego en la web o el webkit
-    openWebBrowser(web) {
-      if(this.platform.is('ios') || this.platform.is('android')){
-      const browser = this.iab.create(web);
-      browser.show();
-      return;
-    }
-    window.open(web, '_blank');
-    }
-
-    doRefresh(event) {
-      this.carga = true;
-      setTimeout(() => {
-        event.target.complete();
-        this.carga = false;
-        location.reload();
-        // this.navCtrl.navigateRoot(['./tabs/tab1']);
-      }, 200);
-    }
-
 }

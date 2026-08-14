@@ -1,12 +1,13 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'; // ✅ Añadido ElementRef
 import { DataLocalService } from '../data-local.service';
 import { DetalleComponent } from '../components/detalle/detalle.component';
 import { ActionSheetController, ModalController } from '@ionic/angular';
-import { Detalle } from '../interfaces/interfaces';
 import { GameService } from '../gameServices.service';
 import { Share } from '@capacitor/share';
-import { SwiperContainer } from 'swiper/element';
-import { RemovehtmltagPipe } from '../removehtmltags.pipe'; 
+import { register } from 'swiper/element/bundle'; // ✅ Asegúrate de importar register
+
+// Registrar Web Components de Swiper
+register();
 
 @Component({
   selector: 'app-tab3',
@@ -15,12 +16,12 @@ import { RemovehtmltagPipe } from '../removehtmltags.pipe';
   standalone: false,
 })
 export class Tab3Page implements OnInit {
-   @ViewChild('swiper') swiper?: SwiperContainer;
 
-  description: Detalle = {};
+  // ✅ CORREGIDO: Usar ElementRef para obtener el elemento del DOM
+  @ViewChild('swiper') swiper?: ElementRef;
+
   marcado = 'close-circle-outline';
 
-  // Configuración moderna de Swiper
   swiperConfig = {
     slidesPerView: 1,
     spaceBetween: 10,
@@ -29,82 +30,106 @@ export class Tab3Page implements OnInit {
     scrollbar: { draggable: true }
   };
 
+  constructor(
+    private dataLocal: DataLocalService,
+    private mc: ModalController,
+    private asc: ActionSheetController,
+    private gameServ: GameService
+  ) {}
+
   ngOnInit() {}
 
   ngAfterViewInit() {
-    // Inicialización manual del Swiper
     setTimeout(() => {
-      if (this.swiper) {
-        Object.assign(this.swiper, this.swiperConfig);
-        this.swiper.initialize();
+      // ✅ CORREGIDO: Acceder mediante nativeElement
+      if (this.swiper?.nativeElement) {
+        Object.assign(this.swiper.nativeElement, this.swiperConfig);
+        this.swiper.nativeElement.initialize();
       }
     });
   }
 
-  get juegosFavoritos(): Detalle[] {
-    return this.dataLocal.getLocalGames;
-  }
+  get juegosFavoritos(): any[] {
+    const defaultImage = 'assets/splash.png';
+    const favs = this.dataLocal.getLocalGames || [];
 
-  constructor(private dataLocal: DataLocalService,
-              private mc: ModalController,
-              private asc: ActionSheetController,
-              private gameServ: GameService,) {}
+    return favs.map((game: any) => {
+      const gameCopy = { ...game };
+
+      if (gameCopy.background_image) {
+        if (gameCopy.background_image.startsWith('//')) {
+          gameCopy.background_image = 'https:' + gameCopy.background_image;
+        }
+      } else if (gameCopy.cover && gameCopy.cover.url) {
+        let imageUrl = gameCopy.cover.url;
+        if (imageUrl.startsWith('//')) {
+          imageUrl = 'https:' + imageUrl;
+        }
+        gameCopy.background_image = imageUrl.replace('t_thumb', 't_cover_big');
+      } else {
+        gameCopy.background_image = defaultImage;
+      }
+
+      return gameCopy;
+    });
+  }
 
   async verDetalle(id: number) {
+    this.gameServ.id = id;
     const modal = await this.mc.create({
       component: DetalleComponent,
-      componentProps: {
-        id
-      }
+      componentProps: { id }
     });
-    modal.present();
+    await modal.present();
   }
 
-    //Abre el actionsheet para poder compartir
-    async onOpenMenu(id) {
-      const gameInFavorites = this.dataLocal.gameInFavorites(id);
+  async onOpenMenu(id: number) {
+    const gameInFavorites = this.dataLocal.gameInFavorites(id);
 
-      const actionSheet = await this.asc.create({
-        header: 'Opciones',
-        buttons: [
-          {
+    const actionSheet = await this.asc.create({
+      header: 'Opciones',
+      buttons: [
+        {
           text: 'Compartir',
-          icon: 'Share-outline',
-          handler: ()=> this.onShareGame(id)
-          },
-          {
-            text: 'Favoritos',
-            icon: gameInFavorites ? 'heart' : 'heart-outline', //Cambia el icono del corazón para saber si ya está o no en favoritos
-            cssClass: '',
-            handler: ()=> this.onToggleFavorite(id)
-          },
-          {
-            text: 'Cancelar',
-            icon: this.marcado,
-            role: 'cancel',
-            cssClass: 'cancel'
-          }
-        ]
-      });
-      await actionSheet.present();
-    }
+          icon: 'share-outline',
+          handler: () => this.onShareGame(id)
+        },
+        {
+          text: gameInFavorites ? 'Quitar de favoritos' : 'Añadir a favoritos',
+          icon: gameInFavorites ? 'heart' : 'heart-outline',
+          handler: () => this.onToggleFavorite(id)
+        },
+        {
+          text: 'Cancelar',
+          icon: this.marcado,
+          role: 'cancel',
+          cssClass: 'cancel'
+        }
+      ]
+    });
+    await actionSheet.present();
+  }
 
-    //Método para compartir con otras aplicaciones
-    async onShareGame(id) {
-      this.gameServ.getGame(id)
-      .subscribe(resp => this.description = resp);
-      const {name, website, rating}: any = this.description;
+  async onShareGame(id: number) {
+    this.gameServ.getGame(id).subscribe(async (gameDetail: any) => {
+      if (!gameDetail) return;
+      const { name, websites } = gameDetail;
+      const mainWebsite = websites && websites.length > 0 ? websites[0].url : 'https://www.igdb.com/';
+
       await Share.share({
         title: name,
-        text: 'Echa un vistazo a este juego increible',
-        url: website,
-        dialogTitle: rating,
+        text: `¡Mira este juego en mi lista de favoritos!: ${name}`,
+        url: mainWebsite,
+        dialogTitle: name
       });
-    }
+    });
+  }
 
-  //Método para añadir o quitar de favoritos
-  onToggleFavorite(id) {
-    this.gameServ.getGame(id)
-    .subscribe(resp => this.dataLocal.guardarBorrarJuego(resp));
+  onToggleFavorite(id: number) {
+    this.gameServ.getGame(id).subscribe((resp: any) => {
+      if (resp) {
+        this.dataLocal.guardarBorrarJuego(resp);
+      }
+    });
   }
 }

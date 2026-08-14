@@ -12,21 +12,55 @@ import { Game } from '../interfaces/interfaces';
 })
 export class Tab2Page {
 
-  games: Game = {};
+  // ✅ CORREGIDO: Declarado como Array de Game
+  games: Game[] = [];
   value = 'Nombre del juego';
   textoBuscar = '';
   spinner = false;
 
-  constructor(private gameServ: GameService,
-              private mc: ModalController,
-              private loadingController: LoadingController) {}
+  constructor(
+    private gameServ: GameService,
+    private mc: ModalController,
+    private loadingController: LoadingController
+  ) {}
 
-  findGame(event) {
+  findGame(event: any) {
+    const texto: string = event.detail.value;
+
+    // Si el texto de búsqueda está vacío, limpiamos los resultados
+    if (!texto || texto.trim().length === 0) {
+      this.spinner = false;
+      this.games = [];
+      return;
+    }
+
     this.spinner = true;
-    const pelicula = event.detail.value;
-    this.gameServ.findGame(pelicula)
-    .subscribe(resp => this.games = resp);
-    this.finding();
+    this.gameServ.findGame(texto).subscribe({
+      next: (resp: any[]) => {
+        this.games = this.formatGameImages(resp || []);
+        this.spinner = false;
+      },
+      error: (err) => {
+        console.error('Error al buscar el juego:', err);
+        this.spinner = false;
+      }
+    });
+  }
+
+  /**
+   * Helper para formatear las portadas de IGDB (HTTPS y resolución t_cover_big)
+   */
+  private formatGameImages(gamesList: any[]): Game[] {
+    return gamesList.map(game => {
+      if (game.cover && game.cover.url) {
+        let imageUrl = game.cover.url;
+        if (imageUrl.startsWith('//')) {
+          imageUrl = 'https:' + imageUrl;
+        }
+        game.background_image = imageUrl.replace('t_thumb', 't_cover_big');
+      }
+      return game;
+    });
   }
 
   onClick() {
@@ -37,17 +71,8 @@ export class Tab2Page {
     this.gameServ.id = id;
     const modal = await this.mc.create({
       component: DetalleComponent,
-      componentProps: {
-        id
-      }
+      componentProps: { id }
     });
-    modal.present();
+    await modal.present();
   }
-
-  finding() {
-    setTimeout(() => {
-      this.spinner = false;
-    }, 2000);
-  }
-
 }
