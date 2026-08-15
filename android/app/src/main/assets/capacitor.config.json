@@ -1,6 +1,6 @@
 {
 	"appId": "com.developmentmartinez.gamereview",
 	"appName": "Games Review",
-	"webDir": "www",
+	"webDir": "www/browser",
 	"bundledWebRuntime": false
 }

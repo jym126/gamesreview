@@ -5,8 +5,12 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.developmentmartinez.gamereview',
   appName: 'Games Review',
-  webDir: 'www',
+  webDir: 'www/browser',
   bundledWebRuntime: false,
+  plugins: {
+    CapacitorHttp: {
+      enabled: true,
+    },
 };
 
 export default config;
