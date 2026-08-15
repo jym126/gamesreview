@@ -1,10 +1,11 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'; // ✅ Añadido ElementRef
-import { DataLocalService } from '../data-local.service';
-import { DetalleComponent } from '../components/detalle/detalle.component';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ActionSheetController, ModalController } from '@ionic/angular';
-import { GameService } from '../gameServices.service';
 import { Share } from '@capacitor/share';
-import { register } from 'swiper/element/bundle'; // ✅ Asegúrate de importar register
+import { register } from 'swiper/element/bundle';
+
+import { DataLocalService } from '../data-local.service';
+import { GameService } from '../gameServices.service';
+import { DetalleComponent } from '../components/detalle/detalle.component';
 
 // Registrar Web Components de Swiper
 register();
@@ -15,20 +16,12 @@ register();
   styleUrls: ['tab3.page.scss'],
   standalone: false,
 })
-export class Tab3Page implements OnInit {
+export class Tab3Page {
 
-  // ✅ CORREGIDO: Usar ElementRef para obtener el elemento del DOM
   @ViewChild('swiper') swiper?: ElementRef;
 
+  juegosFavoritos: any[] = [];
   marcado = 'close-circle-outline';
-
-  swiperConfig = {
-    slidesPerView: 1,
-    spaceBetween: 10,
-    navigation: false,
-    pagination: { clickable: true },
-    scrollbar: { draggable: true }
-  };
 
   constructor(
     private dataLocal: DataLocalService,
@@ -37,23 +30,21 @@ export class Tab3Page implements OnInit {
     private gameServ: GameService
   ) {}
 
-  ngOnInit() {}
-
-  ngAfterViewInit() {
-    setTimeout(() => {
-      // ✅ CORREGIDO: Acceder mediante nativeElement
-      if (this.swiper?.nativeElement) {
-        Object.assign(this.swiper.nativeElement, this.swiperConfig);
-        this.swiper.nativeElement.initialize();
-      }
-    });
+  /**
+   * Ciclo de vida de Ionic: Se ejecuta CADA VEZ que el usuario entra a esta pestaña.
+   */
+  async ionViewWillEnter() {
+    await this.cargarFavoritos();
   }
 
-  get juegosFavoritos(): any[] {
-    const defaultImage = 'assets/splash.png';
-    const favs = this.dataLocal.getLocalGames || [];
+  /**
+   * Carga y procesa los juegos guardados localmente
+   */
+  async cargarFavoritos() {
+    const defaultImage = 'assets/shapes/cover-placeholder.png';
+    const favs = (await this.dataLocal.getLocalGames) || [];
 
-    return favs.map((game: any) => {
+    this.juegosFavoritos = favs.map((game: any) => {
       const gameCopy = { ...game };
 
       if (gameCopy.background_image) {
@@ -72,6 +63,13 @@ export class Tab3Page implements OnInit {
 
       return gameCopy;
     });
+
+    // Notificar a Swiper que la lista de slides se ha actualizado
+    setTimeout(() => {
+      if (this.swiper?.nativeElement) {
+        this.swiper.nativeElement.swiper?.update();
+      }
+    }, 100);
   }
 
   async verDetalle(id: number) {
@@ -81,10 +79,14 @@ export class Tab3Page implements OnInit {
       componentProps: { id }
     });
     await modal.present();
+
+    // Al cerrar el modal, recargar por si se eliminó de favoritos desde la ficha
+    await modal.onDidDismiss();
+    await this.cargarFavoritos();
   }
 
-  async onOpenMenu(id: number) {
-    const gameInFavorites = this.dataLocal.gameInFavorites(id);
+  async onOpenMenu(game: any) {
+    const gameInFavorites = this.dataLocal.gameInFavorites(game.id);
 
     const actionSheet = await this.asc.create({
       header: 'Opciones',
@@ -92,12 +94,12 @@ export class Tab3Page implements OnInit {
         {
           text: 'Compartir',
           icon: 'share-outline',
-          handler: () => this.onShareGame(id)
+          handler: () => this.onShareGame(game)
         },
         {
           text: gameInFavorites ? 'Quitar de favoritos' : 'Añadir a favoritos',
           icon: gameInFavorites ? 'heart' : 'heart-outline',
-          handler: () => this.onToggleFavorite(id)
+          handler: () => this.onToggleFavorite(game)
         },
         {
           text: 'Cancelar',
@@ -110,26 +112,21 @@ export class Tab3Page implements OnInit {
     await actionSheet.present();
   }
 
-  async onShareGame(id: number) {
-    this.gameServ.getGame(id).subscribe(async (gameDetail: any) => {
-      if (!gameDetail) return;
-      const { name, websites } = gameDetail;
-      const mainWebsite = websites && websites.length > 0 ? websites[0].url : 'https://www.igdb.com/';
+  async onShareGame(game: any) {
+    const name = game.name || 'Juego';
+    const mainWebsite = game.websites && game.websites.length > 0 ? game.websites[0].url : 'https://www.igdb.com/';
 
-      await Share.share({
-        title: name,
-        text: `¡Mira este juego en mi lista de favoritos!: ${name}`,
-        url: mainWebsite,
-        dialogTitle: name
-      });
+    await Share.share({
+      title: name,
+      text: `¡Mira este juego en mi lista de favoritos!: ${name}`,
+      url: mainWebsite,
+      dialogTitle: name
     });
   }
 
-  onToggleFavorite(id: number) {
-    this.gameServ.getGame(id).subscribe((resp: any) => {
-      if (resp) {
-        this.dataLocal.guardarBorrarJuego(resp);
-      }
-    });
+  async onToggleFavorite(game: any) {
+    // Guardar/borrar directo sin necesidad de peticiones HTTP adicionales
+    await this.dataLocal.guardarBorrarJuego(game);
+    await this.cargarFavoritos();
   }
 }

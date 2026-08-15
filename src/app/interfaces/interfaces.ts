@@ -91,7 +91,9 @@ export interface Game {
   genres?: Genre[];
   platforms?: Platform[];
   screenshots?: Screenshot[];
-  url?: string;              // Enlace oficial de la ficha en IGDB
+  url?: string;            // Enlace oficial de la ficha en IGDB
+  slug?: string;
+  expanded?: boolean;
   
   // Propiedad auxiliar formateada en el cliente
   background_image?: string;

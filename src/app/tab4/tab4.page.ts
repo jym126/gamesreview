@@ -1,10 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActionSheetController, ModalController, RefresherCustomEvent } from '@ionic/angular';
-import { GameService } from '../gameServices.service';
-import { DetalleComponent } from '../components/detalle/detalle.component';
-import { DataLocalService } from '../data-local.service';
 import { Share } from '@capacitor/share';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
+import { register } from 'swiper/element/bundle';
+
+import { GameService } from '../gameServices.service';
+import { DataLocalService } from '../data-local.service';
+import { DetalleComponent } from '../components/detalle/detalle.component';
 import { Game } from '../interfaces/interfaces';
+
+// Registrar Web Components de Swiper
+register();
 
 @Component({
   selector: 'app-tab4',
@@ -14,16 +20,17 @@ import { Game } from '../interfaces/interfaces';
 })
 export class Tab4Page implements OnInit {
 
-  // ✅ CORREGIDO: Declarado como Array de Game en lugar de objeto individual
+  @ViewChild('swiper') swiper?: ElementRef;
+
   games: Game[] = [];
-  description: any = {};
   carga: boolean = false;
 
   constructor(
     private gameServ: GameService,
     private mc: ModalController,
     private asc: ActionSheetController,
-    private dataLocal: DataLocalService
+    private dataLocal: DataLocalService,
+    private iab: InAppBrowser
   ) {}
 
   ngOnInit() {
@@ -31,7 +38,7 @@ export class Tab4Page implements OnInit {
   }
 
   /**
-   * Carga los próximos lanzamientos
+   * Carga los próximos lanzamientos desde IGDB
    */
   getProximos() {
     this.carga = true;
@@ -39,6 +46,7 @@ export class Tab4Page implements OnInit {
       next: (resp: any[]) => {
         this.games = this.formatGameImages(resp || []);
         this.carga = false;
+        this.actualizarSwiper();
       },
       error: (err) => {
         console.error('Error al obtener próximos lanzamientos:', err);
@@ -58,13 +66,26 @@ export class Tab4Page implements OnInit {
           imageUrl = 'https:' + imageUrl;
         }
         game.background_image = imageUrl.replace('t_thumb', 't_cover_big');
+      } else {
+        game.background_image = 'assets/shapes/cover-placeholder.png';
       }
       return game;
     });
   }
 
   /**
-   * Abre el modal de detalle asignando la propiedad id en el servicio
+   * Notifica a Swiper para refrescar su estructura cuando los datos cambian
+   */
+  private actualizarSwiper() {
+    setTimeout(() => {
+      if (this.swiper?.nativeElement) {
+        this.swiper.nativeElement.swiper?.update();
+      }
+    }, 100);
+  }
+
+  /**
+   * Abre el modal de detalle del juego
    */
   async verDetalle(id: number) {
     this.gameServ.id = id;
@@ -76,24 +97,38 @@ export class Tab4Page implements OnInit {
   }
 
   /**
-   * Conmuta la visibilidad de la sinopsis sin realizar llamadas de más
+   * Alterna la visibilidad de la sinopsis larga
    */
   toggleSinopsis(game: any) {
     game.expanded = !game.expanded;
   }
 
   /**
-   * Guarda o elimina un juego de favoritos
+   * Abre un enlace web seguro con InAppBrowser
    */
-  onToggleFavorite(id: number) {
-    this.gameServ.getGame(id).subscribe((resp: any) => {
-      // resp ya es un objeto gracias al map((res: any[]) => res[0]) de GameService
-      this.dataLocal.guardarBorrarJuego(resp);
-    });
+  abrirEnlaceIGDB(slug?: string) {
+    const url = slug ? `https://www.igdb.com/games/${slug}` : 'https://www.igdb.com/';
+    this.iab.create(url, '_system');
   }
 
   /**
-   * Opciones del ActionSheet
+   * Guarda o elimina un juego de favoritos usando la caché local o solicitándolo al servicio
+   */
+  onToggleFavorite(id: number) {
+    const localGame = this.games.find(g => g.id === id);
+    if (localGame) {
+      this.dataLocal.guardarBorrarJuego(localGame);
+    } else {
+      this.gameServ.getGame(id).subscribe((resp: any) => {
+        if (resp) {
+          this.dataLocal.guardarBorrarJuego(resp);
+        }
+      });
+    }
+  }
+
+  /**
+   * Menú contextual de opciones para el juego seleccionado
    */
   async onOpenMenu(id: number) {
     const gameInFavorites = this.dataLocal.gameInFavorites(id);
@@ -122,27 +157,26 @@ export class Tab4Page implements OnInit {
   }
 
   async onShareGame(id: number) {
-    this.gameServ.getGame(id).subscribe(async (gameDetail: any) => {
-      if (!gameDetail) return;
-      const { name, websites } = gameDetail;
-      const mainWebsite = websites && websites.length > 0 ? websites[0].url : 'https://www.igdb.com/';
+    const localGame = this.games.find(g => g.id === id);
+    const name = localGame?.name || 'Próximo Lanzamiento';
+    const url = localGame?.slug ? `https://www.igdb.com/games/${localGame.slug}` : 'https://www.igdb.com/';
 
-      await Share.share({
-        title: name,
-        text: `¡Próximo lanzamiento en camino!: ${name}`,
-        url: mainWebsite,
-        dialogTitle: 'Compartir juego'
-      });
+    await Share.share({
+      title: name,
+      text: `¡Próximo juego en camino!: ${name}`,
+      url: url,
+      dialogTitle: 'Compartir juego'
     });
   }
 
   /**
-   * Recarga de la lista
+   * Recarga de la lista con el gesto Pull to Refresh
    */
   doRefresh(event: RefresherCustomEvent) {
     this.gameServ.getProximosLanzamientos(20).subscribe({
       next: (resp: any[]) => {
         this.games = this.formatGameImages(resp || []);
+        this.actualizarSwiper();
         event.detail.complete();
       },
       error: (err) => {

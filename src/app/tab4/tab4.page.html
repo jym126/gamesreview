@@ -1,76 +1,113 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
     <ion-title>Próximamente</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content [fullscreen]="true">
+
+  <!-- Pull to Refresh -->
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content
-      refreshingSpinner="circles"
-      refreshingText="Cargando...">
+    <ion-refresher-content refreshingSpinner="circles" refreshingText="Cargando próximos lanzamientos...">
     </ion-refresher-content>
   </ion-refresher>
 
-  <!-- Swiper Container Moderno -->
-  <swiper-container #swiper [init]="false" (slidechange)="onSlideChange()">
-    @for (game of games.results; track game; let i = $index) {
-      <swiper-slide>
-        @if (carga === false) {
-          <ion-card>
-            <ion-card-header>
-              <ion-card-title>
-                <ion-row class="ion-align-items-center">
-                  <ion-col size="8" slots="start">
-                    <ion-label expand="block">{{game.name}}</ion-label>
-                  </ion-col>
-                  <ion-col slots="end">
-                    <ion-button (click)="onOpenMenu(game.id)" fill="clear" expand="block">
-                      <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
-                    </ion-button>
-                  </ion-col>
-                </ion-row>
-              </ion-card-title>
-            </ion-card-header>
-            @for (item of game.short_screenshots | slice:0:3; track item; let i = $index) {
-              <div>
-                <ion-img [src]="item.image" (click)="verDetalle(game.id)"></ion-img>
-                <ion-item-divider></ion-item-divider>
-              </div>
-            }
-            <ion-button (click)="sinopsis(game.id)" fill="clear" shape="round">
-              {{leer}}
-            </ion-button>
-            @if (oculto !== 0) {
-              <ion-item>
-                {{description.description_raw}}
-              </ion-item>
-            }
-            <ion-item>
-              <ion-label>Lanzamiento:</ion-label>
-              <ion-icon slot="start" name="rocket-outline" color="primary"></ion-icon>
-              {{game.released}}
-            </ion-item>
-            <ion-item>
-              <ion-label>Puntuación:</ion-label>
-              <ion-icon slot="start" name="thumbs-up-outline" color="primary" expand="block"></ion-icon>
-              {{game.rating}} / 5
-            </ion-item>
-            <ion-item>
-              <ion-label>Trailer / Votar:</ion-label>
-              <ion-icon slot="start" name="videocam-outline" color="primary" expand="block"></ion-icon>
-              <span (click)="openWebBrowser('https://rawg.io/games/'+game.slug)"><a>Aquí</a></span>
-            </ion-item>
-          </ion-card>
-        }
-      </swiper-slide>
-    }
-  </swiper-container>
+  <!-- Spinner mientras carga la lista inicial -->
+  @if (carga) {
+    <div class="ion-text-center ion-padding">
+      <ion-spinner name="bubbles" color="primary"></ion-spinner>
+      <p>Cargando próximos lanzamientos...</p>
+    </div>
+  }
 
-  <ion-row>
-    <ion-col size="12" style="text-align:right" expand="block"
-      class="credit" (click)="openWebBrowser('https://rawg.io/')">
-      <a style="font-size: 8px">Data provided by: RAWG</a>
+  <!-- Carrusel Swiper cuando SÍ hay juegos -->
+  @if (!carga && games.length > 0) {
+    <swiper-container #swiper slides-per-view="1" space-between="15" pagination="true">
+      @for (game of games; track game.id) {
+        <swiper-slide>
+          <ion-card class="proximos-card">
+            
+            <!-- Portada / Imagen principal -->
+            <div class="cover-container" (click)="verDetalle(game.id)">
+              <ion-img
+                [src]="game.background_image"
+                (ionError)="game.background_image = 'assets/shapes/cover-placeholder.png'"
+                [alt]="game.name">
+              </ion-img>
+            </div>
+
+            <!-- Cabecera de la tarjeta con Título y Botón de Opciones -->
+            <ion-card-header>
+              <div class="card-header-flex">
+                <ion-card-title class="game-title" (click)="verDetalle(game.id)">
+                  {{ game.name }}
+                </ion-card-title>
+                <ion-button
+                  fill="clear"
+                  size="small"
+                  color="medium"
+                  (click)="$event.stopPropagation(); onOpenMenu(game.id)">
+                  <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+                </ion-button>
+              </div>
+            </ion-card-header>
+
+            <!-- Detalles del Lanzamiento -->
+            <ion-list lines="full">
+              <!-- Fecha de lanzamiento en IGDB (UNIX Timestamp) -->
+              @if (game.first_release_date) {
+                <ion-item>
+                  <ion-icon slot="start" name="rocket-outline" color="primary"></ion-icon>
+                  <ion-label>
+                    <h3>Lanzamiento</h3>
+                    <p>{{ game.first_release_date * 1000 | date:'dd/MM/yyyy' }}</p>
+                  </ion-label>
+                </ion-item>
+              }
+
+              <!-- Valoración / Hype -->
+              @if (game.rating) {
+                <ion-item>
+                  <ion-icon slot="start" name="thumbs-up-outline" color="primary"></ion-icon>
+                  <ion-label>
+                    <h3>Puntuación esperada</h3>
+                    <p>★ {{ game.rating | number:'1.0-1' }} / 100</p>
+                  </ion-label>
+                </ion-item>
+              }
+
+              <!-- Enlace a la ficha oficial en IGDB -->
+              <ion-item button (click)="abrirEnlaceIGDB(game.slug)">
+                <ion-icon slot="start" name="open-outline" color="primary"></ion-icon>
+                <ion-label color="primary">Ver ficha en IGDB</ion-label>
+              </ion-item>
+            </ion-list>
+
+            <!-- Sinopsis / Resumen Desplegable -->
+            @if (game.summary) {
+              <ion-card-content>
+                <p [class.summary-truncated]="!game.expanded">
+                  {{ game.summary }}
+                </p>
+                <ion-button fill="clear" size="small" (click)="toggleSinopsis(game)">
+                  {{ game.expanded ? 'Leer menos' : 'Leer más' }}
+                </ion-button>
+              </ion-card-content>
+            }
+
+          </ion-card>
+        </swiper-slide>
+      }
+    </swiper-container>
+  }
+
+  <!-- Crédito corregido a IGDB -->
+  <ion-row class="ion-margin-top">
+    <ion-col size="12" class="ion-text-end ion-padding-end">
+      <a class="credit" href="https://www.igdb.com/" target="_blank" style="font-size: 10px; color: var(--ion-color-medium);">
+        Data provided by: IGDB
+      </a>
     </ion-col>
   </ion-row>
+
 </ion-content>

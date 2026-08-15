@@ -14,7 +14,7 @@
   <!-- Mensaje si NO hay juegos guardados en favoritos -->
   @if (juegosFavoritos.length === 0) {
     <div class="empty-container ion-text-center ion-padding">
-      <ion-icon name="heart-dislike-outline" class="empty-icon"></ion-icon>
+      <ion-icon name="heart-dislike-outline" style="font-size: 64px;" color="medium"></ion-icon>
       <h3>No tienes favoritos guardados</h3>
       <p>Agrega tus juegos preferidos desde Novedades, Próximamente o la Búsqueda para verlos aquí.</p>
     </div>
@@ -23,15 +23,15 @@
   <!-- Carrusel Swiper cuando SÍ hay juegos en favoritos -->
   @if (juegosFavoritos.length > 0) {
     <div class="swiper-wrapper-container">
-      <swiper-container #swiper init="false">
-        @for (game of juegosFavoritos; track game) {
+      <swiper-container #swiper slides-per-view="1" space-between="10" pagination="true">
+        @for (game of juegosFavoritos; track game.id) {
           <swiper-slide>
             <ion-card (click)="verDetalle(game.id)" class="game-card">
               <!-- Portada con badge de valoración e indicador de favorito -->
               <div class="cover-container">
                 <ion-img
-                  [src]="game.background_image || 'assets/splash.png'"
-                  (ionError)="game.background_image = 'assets/splash.png'"
+                  [src]="game.background_image"
+                  (ionError)="game.background_image = 'assets/shapes/cover-placeholder.png'"
                   [alt]="game.name">
                 </ion-img>
                 @if (game.rating) {
@@ -41,6 +41,7 @@
                 }
                 <ion-icon name="heart" color="danger" class="favorite-indicator"></ion-icon>
               </div>
+
               <!-- Cabecera de la tarjeta con título y botón de opciones -->
               <ion-card-header>
                 <div class="card-header-flex">
@@ -54,16 +55,17 @@
                       {{ game.name }}
                     </ion-card-title>
                   </div>
-                  <!-- Botón de opciones (se detiene la propagación para no abrir el modal al tocar los 3 puntos) -->
+                  <!-- Botón de opciones -->
                   <ion-button
                     fill="clear"
                     size="small"
                     color="medium"
-                    (click)="$event.stopPropagation(); onOpenMenu(game.id)">
+                    (click)="$event.stopPropagation(); onOpenMenu(game)">
                     <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
                   </ion-button>
                 </div>
               </ion-card-header>
+
               <!-- Resumen del juego -->
               @if (game.summary) {
                 <ion-card-content>
