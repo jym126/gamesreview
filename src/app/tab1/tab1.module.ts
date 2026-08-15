@@ -4,11 +4,13 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { Tab1Page } from './tab1.page';
 import { Tab1PageRoutingModule } from './tab1-routing.module';
+import { ComponentsModule } from '../components/components.module';
 
 @NgModule({
   imports: [
     IonicModule.forRoot(), // Asegúrate de usar forRoot()
     CommonModule,
+    ComponentsModule, // Importa el módulo de componentes
     FormsModule,
     Tab1PageRoutingModule,
   ],

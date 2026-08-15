@@ -5,118 +5,159 @@
         <ion-icon slot="icon-only" name="return-up-back-outline" color="primary"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Detalle</ion-title>
+    <ion-title>Detalle del Juego</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-card *ngIf="detalle">
+  @if (detalle) {
+    <ion-card>
+      <ion-card-header>
+        <ion-row class="ion-align-items-center">
+          <ion-col size="10">
+            <ion-card-title>{{ detalle.name }}</ion-card-title>
+          </ion-col>
+          <ion-col size="2">
+            <ion-button (click)="onOpenMenu(detalle.id)" fill="clear">
+              <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-card-header>
 
-    <ion-card-header>
-      <ion-row class="ion-align-items-center">
-        <ion-col size="10">
-          <ion-card-title>{{ detalle.name }}</ion-card-title>
-        </ion-col>
-        <ion-col size="2">
-          <ion-button (click)="onOpenMenu(detalle.id)" fill="clear">
-            <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
-          </ion-button>
-        </ion-col>
-      </ion-row>
-    </ion-card-header>
+      <ion-card-content>
+        <!-- Imagen o portada -->
+        @if (detalle.background_image || detalle.cover?.url) {
+          <ion-img
+            [src]="detalle.background_image || detalle.cover?.url"
+            [alt]="detalle.name">
+          </ion-img>
+        }
 
-    <ion-card-content>
-      <!-- Imagen principal o portada formateada -->
-      <ion-img 
-        *ngIf="detalle.background_image || detalle.cover?.url" 
-        [src]="detalle.background_image || detalle.cover?.url" 
-        [alt]="detalle.name">
-      </ion-img>
+        <ion-list lines="full">
+          <!-- Fecha de lanzamiento -->
+          @if (detalle.first_release_date) {
+            <ion-item>
+              <ion-icon slot="start" name="calendar-outline" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Fecha de lanzamiento</h3>
+                <p>{{ detalle.first_release_date * 1000 | date:'dd/MM/yyyy' }}</p>
+              </ion-label>
+            </ion-item>
+          }
 
-      <ion-list lines="none">
-        <!-- Fecha de lanzamiento (Unix Timestamp) -->
-        <ion-item *ngIf="detalle.first_release_date">
-          <ion-icon slot="start" name="rocket-outline" color="primary"></ion-icon>
-          <ion-label>Lanzado:</ion-label>
-          <ion-note slot="end">{{ detalle.first_release_date * 1000 | date:'dd/MM/yyyy' }}</ion-note>
-        </ion-item>
+          <!-- Puntuación -->
+          @if (detalle.rating) {
+            <ion-item>
+              <ion-icon slot="start" name="star-outline" color="warning"></ion-icon>
+              <ion-label>
+                <h3>Valoración IGDB</h3>
+                <p>{{ detalle.rating | number:'1.0-1' }} / 100</p>
+              </ion-label>
+            </ion-item>
+          }
 
-        <!-- Puntuación (escala 0-100) -->
-        <ion-item *ngIf="detalle.rating">
-          <ion-icon slot="start" name="thumbs-up-outline" color="primary"></ion-icon>
-          <ion-label>Puntuación IGDB:</ion-label>
-          <ion-note slot="end">{{ detalle.rating | number:'1.0-1' }} / 100</ion-note>
-        </ion-item>
+          <!-- Empresa Desarrolladora / Publicadora -->
+          @if (detalle.involved_companies?.length) {
+            <ion-item>
+              <ion-icon slot="start" name="business-outline" color="tertiary"></ion-icon>
+              <ion-label>
+                <h3>Desarrollado por</h3>
+                <p>
+                  @for (item of detalle.involved_companies; track item.id || $index) {
+                    <span>{{ item.company?.name }}@if (!$last) {, }</span>
+                  }
+                </p>
+              </ion-label>
+            </ion-item>
+          }
 
-        <!-- Descripción corta / Resumen de la historia -->
-        <ion-item class="ion-text-wrap" *ngIf="detalle.summary || detalle.storyline">
-          <p>{{ detalle.summary || detalle.storyline }}</p>
-        </ion-item>
+          <!-- Modos de Juego (1 jugador / Multijugador / Co-op) -->
+          @if (detalle.game_modes?.length) {
+            <ion-item class="ion-text-wrap">
+              <ion-icon slot="start" name="people-outline" color="secondary"></ion-icon>
+              <ion-label>
+                <h3>Modos de Juego</h3>
+                <div class="ion-padding-top">
+                  @for (modo of detalle.game_modes; track modo.id || $index) {
+                    <ion-chip color="secondary" outline="true">
+                      <ion-label>{{ modo.name }}</ion-label>
+                    </ion-chip>
+                  }
+                </div>
+              </ion-label>
+            </ion-item>
+          }
 
-        <!-- Géneros -->
-        <ng-container *ngIf="detalle.genres?.length">
-          <ion-item-divider>
-            <ion-label>Géneros</ion-label>
-          </ion-item-divider>
-          <div class="ion-padding-vertical">
-            <ion-chip *ngFor="let gen of detalle.genres" color="primary">
-              <ion-label>{{ gen.name }}</ion-label>
-            </ion-chip>
-          </div>
-        </ng-container>
+          <!-- Plataformas -->
+          @if (detalle.platforms?.length) {
+            <ion-item class="ion-text-wrap">
+              <ion-icon slot="start" name="game-controller-outline" color="success"></ion-icon>
+              <ion-label>
+                <h3>Plataformas</h3>
+                <div class="ion-padding-top">
+                  @for (plat of detalle.platforms; track plat.id || $index) {
+                    <ion-chip color="success">
+                      <ion-label>{{ plat.name }}</ion-label>
+                    </ion-chip>
+                  }
+                </div>
+              </ion-label>
+            </ion-item>
+          }
 
-        <!-- Plataformas -->
-        <ng-container *ngIf="detalle.platforms?.length">
-          <ion-item-divider>
-            <ion-label>Plataformas</ion-label>
-          </ion-item-divider>
-          <div class="ion-padding-vertical">
-            <ion-chip *ngFor="let plat of detalle.platforms" color="secondary" outline="true">
-              <ion-label>{{ plat.name }}</ion-label>
-            </ion-chip>
-          </div>
-        </ng-container>
+          <!-- Géneros -->
+          @if (detalle.genres?.length) {
+            <ion-item class="ion-text-wrap">
+              <ion-icon slot="start" name="pricetags-outline" color="medium"></ion-icon>
+              <ion-label>
+                <h3>Géneros</h3>
+                <div class="ion-padding-top">
+                  @for (gen of detalle.genres; track gen.id || $index) {
+                    <ion-chip color="medium" outline="true">
+                      <ion-label>{{ gen.name }}</ion-label>
+                    </ion-chip>
+                  }
+                </div>
+              </ion-label>
+            </ion-item>
+          }
 
-        <!-- Empresas involucradas / Desarrolladores -->
-        <ng-container *ngIf="detalle.involved_companies?.length">
-          <ion-item-divider>
-            <ion-label>Desarrollado por</ion-label>
-          </ion-item-divider>
-          <ion-item *ngFor="let item of detalle.involved_companies">
-            <ion-label>{{ item.company?.name }}</ion-label>
-          </ion-item>
-        </ng-container>
+          <!-- Resumen del Juego / Trama -->
+          @if (detalle.summary || detalle.storyline) {
+            <ion-item class="ion-text-wrap">
+              <ion-icon slot="start" name="document-text-outline" color="dark"></ion-icon>
+              <ion-label>
+                <h3>Resumen</h3>
+                <p class="ion-padding-top">{{ detalle.summary || detalle.storyline }}</p>
+              </ion-label>
+            </ion-item>
+          }
 
-        <!-- Modos de juego -->
-        <ng-container *ngIf="detalle.game_modes?.length">
-          <ion-item-divider>
-            <ion-label>Modos de juego</ion-label>
-          </ion-item-divider>
-          <div class="ion-padding-vertical">
-            <ion-chip *ngFor="let modo of detalle.game_modes" color="tertiary" outline="true">
-              <ion-label>{{ modo.name }}</ion-label>
-            </ion-chip>
-          </div>
-        </ng-container>
+          <!-- Enlaces de interés -->
+          @if (detalle.url || detalle.websites?.length) {
+            <ion-item-divider>
+              <ion-label>Enlaces externos</ion-label>
+            </ion-item-divider>
 
-        <!-- Enlaces Web de IGDB y Sitios Oficiales -->
-        <ng-container *ngIf="detalle.url || detalle.websites?.length">
-          <ion-item-divider>
-            <ion-label>Enlaces</ion-label>
-          </ion-item-divider>
+            @if (detalle.url) {
+              <ion-item button (click)="openWebBrowser(detalle.url)">
+                <ion-label color="primary">Ver en IGDB</ion-label>
+                <ion-icon slot="end" name="open-outline"></ion-icon>
+              </ion-item>
+            }
 
-          <ion-item *ngIf="detalle.url" button (click)="openWebBrowser(detalle.url)">
-            <ion-label color="primary">Ficha Oficial IGDB</ion-label>
-            <ion-icon slot="end" name="open-outline"></ion-icon>
-          </ion-item>
-
-          <ion-item *ngFor="let web of detalle.websites" button (click)="openWebBrowser(web.url)">
-            <ion-label color="primary">Sitio Web / Red Social</ion-label>
-            <ion-icon slot="end" name="open-outline"></ion-icon>
-          </ion-item>
-        </ng-container>
-
-      </ion-list>
-    </ion-card-content>
-  </ion-card>
+            @for (web of detalle.websites; track web.id || $index) {
+              @if (web.url) {
+                <ion-item button (click)="openWebBrowser(web.url)">
+                  <ion-label color="primary">Sitio Web Oficial / Red Social</ion-label>
+                  <ion-icon slot="end" name="open-outline"></ion-icon>
+                </ion-item>
+              }
+            }
+          }
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  }
 </ion-content>

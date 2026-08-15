@@ -18,75 +18,82 @@
   </ion-refresher>
 
   <!-- Spinner de carga -->
-  <div *ngIf="carga" class="ion-text-center ion-padding margin-top-spinner">
-    <ion-spinner name="crescent" color="primary"></ion-spinner>
-    <p>Cargando novedades...</p>
-  </div>
+  @if (carga) {
+    <div class="ion-text-center ion-padding margin-top-spinner">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Cargando novedades...</p>
+    </div>
+  }
 
   <!-- Rejilla de juegos -->
-  <ion-grid *ngIf="!carga">
-    <ion-row>
-      <ion-col size="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let game of games">
-        <ion-card (click)="verDetalle(game.id)" class="game-card">
-
-          <!-- Portada con badge de valoración e icono de favorito si ya está guardado -->
-          <div class="cover-container">
-            <ion-img 
-              [src]="game.background_image || 'assets/splash.png'" 
-              (ionError)="game.background_image = 'assets/splash.png'"
-              [alt]="game.name">
-            </ion-img>
-
-            <ion-badge *ngIf="game.rating" color="warning" class="rating-badge">
-              ★ {{ game.rating | number:'1.0-1' }}
-            </ion-badge>
-
-            <!-- Corazón indicador si ya está en favoritos -->
-            <ion-icon 
-              *ngIf="dataLocal.gameInFavorites(game.id)" 
-              name="heart" 
-              color="danger" 
-              class="favorite-indicator">
-            </ion-icon>
-          </div>
-
-          <!-- Cabecera con título, fecha y botón de tres puntos para opciones -->
-          <ion-card-header>
-            <div class="card-header-flex">
-              <div>
-                <ion-card-subtitle *ngIf="game.first_release_date">
-                  Lanzado el {{ game.first_release_date * 1000 | date:'dd/MM/yyyy' }}
-                </ion-card-subtitle>
-                <ion-card-title class="game-title">
-                  {{ game.name }}
-                </ion-card-title>
+  @if (!carga) {
+    <ion-grid>
+      <ion-row>
+        @for (game of games; track game) {
+          <ion-col size="12" size-sm="6" size-md="4" size-lg="3">
+            <ion-card (click)="verDetalle(game.id)" class="game-card">
+              <!-- Portada con badge de valoración e icono de favorito si ya está guardado -->
+              <div class="cover-container">
+                <ion-img
+                  [src]="game.background_image || 'assets/splash.png'"
+                  (ionError)="game.background_image = 'assets/splash.png'"
+                  [alt]="game.name">
+                </ion-img>
+                @if (game.rating) {
+                  <ion-badge color="warning" class="rating-badge">
+                    ★ {{ game.rating | number:'1.0-1' }}
+                  </ion-badge>
+                }
+                <!-- Corazón indicador si ya está en favoritos -->
+                @if (dataLocal.gameInFavorites(game.id)) {
+                  <ion-icon
+                    name="heart"
+                    color="danger"
+                    class="favorite-indicator">
+                  </ion-icon>
+                }
               </div>
-
-              <!-- Botón de opciones (previene que se abra el modal de detalle) -->
-              <ion-button 
-                fill="clear" 
-                size="small" 
-                color="medium"
-                (click)="$event.stopPropagation(); onOpenMenu(game.id)">
-                <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
-              </ion-button>
-            </div>
-          </ion-card-header>
-
-          <ion-card-content *ngIf="game.summary">
-            <p class="summary-text">{{ game.summary }}</p>
-          </ion-card-content>
-
-        </ion-card>
-      </ion-col>
-    </ion-row>
-
-    <!-- Estado vacío -->
-    <ion-row *ngIf="games.length === 0">
-      <ion-col size="12" class="ion-text-center ion-padding">
-        <ion-icon name="game-controller-outline" class="empty-icon"></ion-icon>
-        <p>No hay datos de novedades disponibles.</p>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+              <!-- Cabecera con título, fecha y botón de tres puntos para opciones -->
+              <ion-card-header>
+                <div class="card-header-flex">
+                  <div>
+                    @if (game.first_release_date) {
+                      <ion-card-subtitle>
+                        Lanzado el {{ game.first_release_date * 1000 | date:'dd/MM/yyyy' }}
+                      </ion-card-subtitle>
+                    }
+                    <ion-card-title class="game-title">
+                      {{ game.name }}
+                    </ion-card-title>
+                  </div>
+                  <!-- Botón de opciones (previene que se abra el modal de detalle) -->
+                  <ion-button
+                    fill="clear"
+                    size="small"
+                    color="medium"
+                    (click)="$event.stopPropagation(); onOpenMenu(game.id)">
+                    <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+                  </ion-button>
+                </div>
+              </ion-card-header>
+              @if (game.summary) {
+                <ion-card-content>
+                  <p class="summary-text">{{ game.summary }}</p>
+                </ion-card-content>
+              }
+            </ion-card>
+          </ion-col>
+        }
+      </ion-row>
+      <!-- Estado vacío -->
+      @if (games.length === 0) {
+        <ion-row>
+          <ion-col size="12" class="ion-text-center ion-padding">
+            <ion-icon name="game-controller-outline" class="empty-icon"></ion-icon>
+            <p>No hay datos de novedades disponibles.</p>
+          </ion-col>
+        </ion-row>
+      }
+    </ion-grid>
+  }
 </ion-content>

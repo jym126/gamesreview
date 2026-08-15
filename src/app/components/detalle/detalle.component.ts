@@ -15,7 +15,8 @@ import { Detalle } from 'src/app/interfaces/interfaces';
 export class DetalleComponent implements OnInit {
 
   @Input() id: string | number = this.gameServ.id;
-  detalle: Detalle = {};
+  
+  detalle!: Detalle; 
   marcado = 'close-circle-outline';
 
   constructor(
@@ -27,7 +28,7 @@ export class DetalleComponent implements OnInit {
 
   ngOnInit() {
     if (this.id) {
-      this.gameServ.getGame(this.id).subscribe(resp => {
+      this.gameServ.getGame(+this.id).subscribe(resp => {
         this.detalle = resp;
       });
     }
@@ -37,7 +38,6 @@ export class DetalleComponent implements OnInit {
     this.mc.dismiss();
   }
 
-  // Abre la página web usando @capacitor/browser (funciona en Android, iOS y Web)
   async openWebBrowser(web?: string) {
     if (!web) return;
     await Browser.open({ url: web });
@@ -47,16 +47,15 @@ export class DetalleComponent implements OnInit {
     console.log(tienda);
   }
 
-  // Abre el ActionSheet con las opciones
   async onOpenMenu(id: string | number) {
-    const gameInFavorites = this.dataLocal.gameInFavorites(id);
+    const gameInFavorites = this.dataLocal.gameInFavorites(+id);
 
     const actionSheet = await this.asc.create({
       header: 'Opciones',
       buttons: [
         {
           text: 'Compartir',
-          icon: 'share-outline', // Corregida mayúscula inicial
+          icon: 'share-outline',
           handler: () => this.onShareGame()
         },
         {
@@ -76,19 +75,21 @@ export class DetalleComponent implements OnInit {
     await actionSheet.present();
   }
 
-  // Método para compartir en redes usando el objeto ya cargado
   async onShareGame() {
-    const { name, website, rating } = this.detalle;
+    if (!this.detalle) return;
+
+    // Se utiliza 'url' o la primera web del array de 'websites'
+    const { name, url, rating, websites } = this.detalle;
+    const shareUrl = url || websites?.[0]?.url || 'https://www.igdb.com/';
 
     await Share.share({
       title: name || 'Juego',
       text: 'Echa un vistazo a este juego increíble',
-      url: website,
-      dialogTitle: rating ? `Valoración: ${rating}` : 'Compartir juego',
+      url: shareUrl,
+      dialogTitle: rating ? `Valoración: ${rating.toFixed(0)}/100` : 'Compartir juego',
     });
   }
 
-  // Añadir/quitar de favoritos sin volver a hacer la petición HTTP
   onToggleFavorite() {
     if (this.detalle && Object.keys(this.detalle).length > 0) {
       this.dataLocal.guardarBorrarJuego(this.detalle);

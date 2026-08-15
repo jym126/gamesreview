@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { LoadingController, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import { DetalleComponent } from '../components/detalle/detalle.component';
 import { GameService } from '../gameServices.service';
 import { Game } from '../interfaces/interfaces';
@@ -12,30 +12,30 @@ import { Game } from '../interfaces/interfaces';
 })
 export class Tab2Page {
 
-  // ✅ CORREGIDO: Declarado como Array de Game
   games: Game[] = [];
-  value = 'Nombre del juego';
-  textoBuscar = '';
   spinner = false;
+  busquedaRealizada = false;
 
   constructor(
     private gameServ: GameService,
-    private mc: ModalController,
-    private loadingController: LoadingController
+    private mc: ModalController
   ) {}
 
   findGame(event: any) {
     const texto: string = event.detail.value;
 
-    // Si el texto de búsqueda está vacío, limpiamos los resultados
+    // Si el cuadro de búsqueda se vacía, limpiamos la pantalla
     if (!texto || texto.trim().length === 0) {
       this.spinner = false;
+      this.busquedaRealizada = false;
       this.games = [];
       return;
     }
 
     this.spinner = true;
-    this.gameServ.findGame(texto).subscribe({
+    this.busquedaRealizada = true;
+
+    this.gameServ.findGame(texto.trim()).subscribe({
       next: (resp: any[]) => {
         this.games = this.formatGameImages(resp || []);
         this.spinner = false;
@@ -48,7 +48,7 @@ export class Tab2Page {
   }
 
   /**
-   * Helper para formatear las portadas de IGDB (HTTPS y resolución t_cover_big)
+   * Helper para asegurar que la portada siempre tenga una URL válida o una de respaldo
    */
   private formatGameImages(gamesList: any[]): Game[] {
     return gamesList.map(game => {
@@ -58,13 +58,12 @@ export class Tab2Page {
           imageUrl = 'https:' + imageUrl;
         }
         game.background_image = imageUrl.replace('t_thumb', 't_cover_big');
+      } else {
+        // Imagen de respaldo por si el juego no tiene portada asignada en IGDB
+        game.background_image = 'assets/shapes/cover-placeholder.png';
       }
       return game;
     });
-  }
-
-  onClick() {
-    this.value = '';
   }
 
   async verDetalle(id: number) {

@@ -71,7 +71,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "^2.1.0",
     "ora": "^5.4.1",
-    "protractor": "^7.0.0",
+    "protractor": "^3.3.0",
     "sass": "^1.89.2",
     "ts-node": "~10.9.2",
     "typescript": "~5.9.3"
